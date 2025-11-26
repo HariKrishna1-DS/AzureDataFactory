@@ -470,7 +470,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"container": "target"
+						"container": "input2"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
@@ -746,7 +746,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileSystem": "source"
+						"fileSystem": "input1"
 					},
 					"columnDelimiter": ",",
 					"escapeChar": "\\",
