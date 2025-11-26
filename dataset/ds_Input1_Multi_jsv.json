@@ -1,0 +1,46 @@
+{
+	"name": "ds_Input1_Multi_jsv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "input-11"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"eid": {
+					"type": "integer"
+				},
+				"ename": {
+					"type": "string"
+				},
+				"sal": {
+					"type": "integer"
+				},
+				"dno": {
+					"type": "integer"
+				},
+				"pid": {
+					"type": "integer"
+				},
+				"pname": {
+					"type": "string"
+				},
+				"price": {
+					"type": "integer"
+				},
+				"city": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}
