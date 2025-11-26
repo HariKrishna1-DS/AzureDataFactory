@@ -1,0 +1,72 @@
+{
+	"name": "ds_orders_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "orders.json",
+				"container": "source"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"branch": {
+					"type": "string"
+				},
+				"products": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"product": {
+								"type": "string"
+							},
+							"price": {
+								"type": "integer"
+							}
+						}
+					}
+				},
+				"orders": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"order_id": {
+								"type": "integer"
+							},
+							"order_date": {
+								"type": "string"
+							},
+							"Order_qty": {
+								"type": "string"
+							},
+							"order_address": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"city": {
+											"type": "string"
+										},
+										"State": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

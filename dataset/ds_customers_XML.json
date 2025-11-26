@@ -1,0 +1,19 @@
+{
+	"name": "ds_customers_XML",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Xml",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "customers2.xml",
+				"fileSystem": "input1"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

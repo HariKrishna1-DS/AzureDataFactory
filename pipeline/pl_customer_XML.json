@@ -1,0 +1,47 @@
+{
+	"name": "pl_customer_XML",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_Customer_XML",
+						"type": "DataFlowReference",
+						"datasetParameters": {
+							"sink1": {
+								"tablename": {
+									"value": "@pipeline().parameters.customer2_xml",
+									"type": "Expression"
+								}
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"customer2_xml": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-11-25T18:00:13Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
