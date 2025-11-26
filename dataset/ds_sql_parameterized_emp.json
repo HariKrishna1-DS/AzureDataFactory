@@ -1,0 +1,44 @@
+{
+	"name": "ds_sql_parameterized_emp",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tablename": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "cid",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "cname",
+				"type": "varchar"
+			},
+			{
+				"name": "bal",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "branch",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().tablename",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

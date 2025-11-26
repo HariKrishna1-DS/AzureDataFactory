@@ -1,0 +1,83 @@
+{
+	"name": "ds_customer_json",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "customers.json",
+				"fileSystem": "source"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"cid": {
+					"type": "string"
+				},
+				"cname": {
+					"type": "string"
+				},
+				"accounts": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"bankname": {
+								"type": "string"
+							},
+							"balance": {
+								"type": "integer"
+							}
+						}
+					}
+				},
+				"policies": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"policyname": {
+								"type": "string"
+							},
+							"Term": {
+								"type": "string"
+							},
+							"sumassured": {
+								"type": "integer"
+							},
+							"Nominees": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"Name": {
+											"type": "string"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"address": {
+					"type": "object",
+					"properties": {
+						"city": {
+							"type": "string"
+						},
+						"state": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
