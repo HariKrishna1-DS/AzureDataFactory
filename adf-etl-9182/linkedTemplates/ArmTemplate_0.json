@@ -318,6 +318,101 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_Titanic_Parquet1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "titanic.parquet",
+						"fileSystem": "source-2"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "PassengerId",
+						"type": "INT_64"
+					},
+					{
+						"name": "Survived",
+						"type": "INT_64"
+					},
+					{
+						"name": "Pclass",
+						"type": "INT_64"
+					},
+					{
+						"name": "Name",
+						"type": "UTF8"
+					},
+					{
+						"name": "Sex",
+						"type": "UTF8"
+					},
+					{
+						"name": "Age",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "SibSp",
+						"type": "INT_64"
+					},
+					{
+						"name": "Parch",
+						"type": "INT_64"
+					},
+					{
+						"name": "Ticket",
+						"type": "UTF8"
+					},
+					{
+						"name": "Fare",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "Cabin",
+						"type": "UTF8"
+					},
+					{
+						"name": "Embarked",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_Titanic_Parquet_sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Titanic_perquet"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_customer_json')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -593,109 +688,6 @@
 						"type": "String"
 					}
 				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_ordere')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"container": "target"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_orders_json')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "AzureBlobStorage1",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "Json",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "orders.json",
-						"container": "source"
-					}
-				},
-				"schema": {
-					"type": "object",
-					"properties": {
-						"branch": {
-							"type": "string"
-						},
-						"products": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"product": {
-										"type": "string"
-									},
-									"price": {
-										"type": "integer"
-									}
-								}
-							}
-						},
-						"orders": {
-							"type": "array",
-							"items": {
-								"type": "object",
-								"properties": {
-									"order_id": {
-										"type": "integer"
-									},
-									"order_date": {
-										"type": "string"
-									},
-									"Order_qty": {
-										"type": "string"
-									},
-									"order_address": {
-										"type": "array",
-										"items": {
-											"type": "object",
-											"properties": {
-												"city": {
-													"type": "string"
-												},
-												"State": {
-													"type": "string"
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorage1')]"
