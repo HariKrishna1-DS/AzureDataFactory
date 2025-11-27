@@ -1,0 +1,20 @@
+{
+	"name": "powerquery1",
+	"properties": {
+		"type": "WranglingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"name": "ds_emp1_powerquery",
+					"script": "source(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~>  ds_emp1_powerquery",
+					"dataset": {
+						"referenceName": "ds_emp1_powerquery",
+						"type": "DatasetReference"
+					}
+				}
+			],
+			"script": "section Section1;\r\nshared ds_emp1_powerquery = let AdfDoc = AzureStorage.DataLakeContents(\"https://adfstroagelake1.dfs.core.windows.net/input2/emp1.csv\"),Csv = Csv.Document(AdfDoc, [Delimiter = \",\", Encoding = TextEncoding.Utf8, QuoteStyle = QuoteStyle.Csv]), PromotedHeaders = Table.PromoteHeaders(Csv, [PromoteAllScalars = true]) in  PromotedHeaders;\r\nshared UserQuery = let Source = #\"ds_emp1_powerquery\" in Source;\r\n",
+			"documentLocale": "en-us"
+		}
+	}
+}
