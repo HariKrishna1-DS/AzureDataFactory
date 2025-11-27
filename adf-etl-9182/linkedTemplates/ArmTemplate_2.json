@@ -13,6 +13,70 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/df_Customer_XML')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_customers_XML",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_sql_customer_XML",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Customers as (customer as ({@id} as string, accno as integer, bal as integer, dob as date, name as string)[])",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     validationMode: 'none',",
+						"     namespaces: true) ~> source1",
+						"source1 foldDown(unroll(Customers.customer),",
+						"     mapColumn(",
+						"          {@id} = Customers.customer.{@id},",
+						"          accno = Customers.customer.accno,",
+						"          bal = Customers.customer.bal,",
+						"          dob = Customers.customer.dob,",
+						"          name = Customers.customer.name",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten1",
+						"flatten1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/df_LookUP_merge_columns')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -266,7 +330,9 @@
 				"annotations": [],
 				"lastPublishTime": "2025-11-25T18:00:13Z"
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_Customer_XML')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_flatten_json')]",
