@@ -1,0 +1,16 @@
+{
+	"name": "ds_Titanic_Parquet_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Titanic_perquet"
+		}
+	}
+}
