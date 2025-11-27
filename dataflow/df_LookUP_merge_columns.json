@@ -34,9 +34,6 @@
 				}
 			],
 			"scriptLines": [
-				"parameters{",
-				"     parameter1 as string (Emps_deps_LookUP)",
-				"}",
 				"source(output(",
 				"          dno as integer,",
 				"          dname as string,",
