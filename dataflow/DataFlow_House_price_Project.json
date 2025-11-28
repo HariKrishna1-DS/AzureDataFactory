@@ -1,0 +1,60 @@
+{
+	"name": "DataFlow_House_price_Project",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "House_sql_source",
+						"type": "DatasetReference"
+					},
+					"name": "HousePricesSource"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "DeletingColumns"
+				},
+				{
+					"name": "ChangingDatatypes",
+					"description": "Creating/updating the columns 'location, size, total_sqft, bath, price'\n\n\nconvert Datatypes"
+				},
+				{
+					"name": "AddingColumns"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          area_type as string,",
+				"          availability as string,",
+				"          location as string,",
+				"          size as string,",
+				"          society as string,",
+				"          total_sqft as string,",
+				"          bath as string,",
+				"          balcony as string,",
+				"          price as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> HousePricesSource",
+				"HousePricesSource select(mapColumn(",
+				"          location,",
+				"          size,",
+				"          total_sqft,",
+				"          bath,",
+				"          {price(in Lakhs)} = price",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> DeletingColumns",
+				"AddingColumns derive(bath = toInteger(bath),",
+				"          {price(in Lakhs)} = toInteger({price(in Lakhs)}),",
+				"          total_sqft = toInteger(total_sqft)) ~> ChangingDatatypes",
+				"ChangingDatatypes derive(price_per_sqft = ({price(in Lakhs)} * 100000) / total_sqft) ~> AddingColumns"
+			]
+		}
+	}
+}
