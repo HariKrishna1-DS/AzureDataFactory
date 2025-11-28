@@ -635,6 +635,69 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DataFlow_House_price_Project')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "House_sql_source",
+								"type": "DatasetReference"
+							},
+							"name": "HousePricesSource"
+						}
+					],
+					"sinks": [],
+					"transformations": [
+						{
+							"name": "DeletingColumns"
+						},
+						{
+							"name": "ChangingDatatypes",
+							"description": "Creating/updating the columns 'location, size, total_sqft, bath, price'\n\n\nconvert Datatypes"
+						},
+						{
+							"name": "AddingColumns"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          area_type as string,",
+						"          availability as string,",
+						"          location as string,",
+						"          size as string,",
+						"          society as string,",
+						"          total_sqft as string,",
+						"          bath as string,",
+						"          balcony as string,",
+						"          price as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> HousePricesSource",
+						"HousePricesSource select(mapColumn(",
+						"          location,",
+						"          size,",
+						"          total_sqft,",
+						"          bath,",
+						"          {price(in Lakhs)} = price",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> DeletingColumns",
+						"AddingColumns derive(bath = toInteger(bath),",
+						"          {price(in Lakhs)} = toInteger({price(in Lakhs)}),",
+						"          total_sqft = toInteger(total_sqft)) ~> ChangingDatatypes",
+						"ChangingDatatypes derive(price_per_sqft = ({price(in Lakhs)} * 100000) / total_sqft) ~> AddingColumns"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -854,6 +917,51 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_House_Price_Project')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DataFlow_House_price_Project",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"HousePricesSource": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/DataFlow_House_price_Project')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pl_LookUp_Transfrmation')]",
