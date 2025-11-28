@@ -1,0 +1,60 @@
+{
+	"name": "House_source",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Bengaluru_House_Data.csv",
+				"fileSystem": "project-source"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "area_type",
+				"type": "String"
+			},
+			{
+				"name": "availability",
+				"type": "String"
+			},
+			{
+				"name": "location",
+				"type": "String"
+			},
+			{
+				"name": "size",
+				"type": "String"
+			},
+			{
+				"name": "society",
+				"type": "String"
+			},
+			{
+				"name": "total_sqft",
+				"type": "String"
+			},
+			{
+				"name": "bath",
+				"type": "String"
+			},
+			{
+				"name": "balcony",
+				"type": "String"
+			},
+			{
+				"name": "price",
+				"type": "String"
+			}
+		]
+	}
+}
