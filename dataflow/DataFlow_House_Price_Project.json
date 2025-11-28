@@ -1,0 +1,77 @@
+{
+	"name": "DataFlow_House_Price_Project",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "House_source",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_House_Price_Sink",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "CheckingNULLS"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          area_type as string,",
+				"          availability as string,",
+				"          location as string,",
+				"          size as integer,",
+				"          society as string,",
+				"          total_sqft as integer,",
+				"          bath as integer,",
+				"          balcony as string,",
+				"          price as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"select1 derive(price_per_sqft = ({price(in lakhs)} * 100000  /  total_sqft)) ~> derivedColumn",
+				"source1 select(mapColumn(",
+				"          location,",
+				"          total_sqft,",
+				"          bath,",
+				"          {price(in lakhs)} = price",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"derivedColumn derive(price_per_sqft = round(({price(in lakhs)} * 100000) / total_sqft, 2)) ~> derivedColumn1",
+				"derivedColumn1 filter(!isNull(total_sqft)) ~> CheckingNULLS",
+				"CheckingNULLS sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}
