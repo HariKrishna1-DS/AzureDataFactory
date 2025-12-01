@@ -120,7 +120,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_House_Price_Project')]",
+			"name": "[concat(parameters('factoryName'), '/pl_House_price_Project')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -139,11 +139,12 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "DataFlow_House_price_Project",
+								"referenceName": "DataFlow_House_Price_Project",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"HousePricesSource": {}
+									"source1": {},
+									"sink1": {}
 								}
 							},
 							"staging": {},
@@ -153,6 +154,45 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Data flow1",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "House_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
 					}
 				],
 				"policy": {
@@ -161,7 +201,8 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/DataFlow_House_price_Project')]"
+				"[concat(variables('factoryId'), '/dataflows/DataFlow_House_Price_Project')]",
+				"[concat(variables('factoryId'), '/datasets/House_source')]"
 			]
 		},
 		{
@@ -1808,6 +1849,27 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_House_Price_Sink')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "House_Sink_Project"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_Input1_Multi_jsv')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -2809,7 +2871,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DataFlow_House_price_Project')]",
+			"name": "[concat(parameters('factoryName'), '/DataFlow_House_Price_Project')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -2818,23 +2880,33 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "House_sql_source",
+								"referenceName": "House_source",
 								"type": "DatasetReference"
 							},
-							"name": "HousePricesSource"
+							"name": "source1"
 						}
 					],
-					"sinks": [],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_House_Price_Sink",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
 					"transformations": [
 						{
-							"name": "DeletingColumns"
+							"name": "derivedColumn"
 						},
 						{
-							"name": "ChangingDatatypes",
-							"description": "Creating/updating the columns 'location, size, total_sqft, bath, price'\n\n\nconvert Datatypes"
+							"name": "select1"
 						},
 						{
-							"name": "AddingColumns"
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "CheckingNULLS"
 						}
 					],
 					"scriptLines": [
@@ -2842,35 +2914,43 @@
 						"          area_type as string,",
 						"          availability as string,",
 						"          location as string,",
-						"          size as string,",
+						"          size as integer,",
 						"          society as string,",
-						"          total_sqft as string,",
-						"          bath as string,",
+						"          total_sqft as integer,",
+						"          bath as integer,",
 						"          balcony as string,",
-						"          price as string",
+						"          price as integer",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> HousePricesSource",
-						"HousePricesSource select(mapColumn(",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"select1 derive(price_per_sqft = ({price(in lakhs)} * 100000  /  total_sqft)) ~> derivedColumn",
+						"source1 select(mapColumn(",
 						"          location,",
-						"          size,",
 						"          total_sqft,",
 						"          bath,",
-						"          {price(in Lakhs)} = price",
+						"          {price(in lakhs)} = price",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> DeletingColumns",
-						"AddingColumns derive(bath = toInteger(bath),",
-						"          {price(in Lakhs)} = toInteger({price(in Lakhs)}),",
-						"          total_sqft = toInteger(total_sqft)) ~> ChangingDatatypes",
-						"ChangingDatatypes derive(price_per_sqft = ({price(in Lakhs)} * 100000) / total_sqft) ~> AddingColumns"
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"derivedColumn derive(price_per_sqft = round(({price(in lakhs)} * 100000) / total_sqft, 2)) ~> derivedColumn1",
+						"derivedColumn1 filter(!isNull(total_sqft)) ~> CheckingNULLS",
+						"CheckingNULLS sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/House_sql_source')]"
+				"[concat(variables('factoryId'), '/datasets/House_source')]",
+				"[concat(variables('factoryId'), '/datasets/ds_House_Price_Sink')]"
 			]
 		},
 		{

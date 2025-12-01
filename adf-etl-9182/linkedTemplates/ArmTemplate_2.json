@@ -13,6 +13,153 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_multi_jsons')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Metadata1",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_Input1_Multi_jsv",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "JsonReadSettings"
+							}
+						}
+					},
+					{
+						"name": "Filter1",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata1').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@equals(item().type,'File')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ForEach1",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter1').output.Value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "JsonSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"wildcardFileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "JsonReadSettings"
+											}
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_Input1_Multi_jsv",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_Input_Multi_Sql_jsv",
+											"type": "DatasetReference",
+											"parameters": {
+												"tablename": {
+													"value": "@replace(item().name,'.json','')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_multi_jsv_and _csv_copy1')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -635,7 +782,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DataFlow_House_price_Project')]",
+			"name": "[concat(parameters('factoryName'), '/DataFlow_House_Price_Project')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -644,23 +791,33 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "House_sql_source",
+								"referenceName": "House_source",
 								"type": "DatasetReference"
 							},
-							"name": "HousePricesSource"
+							"name": "source1"
 						}
 					],
-					"sinks": [],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_House_Price_Sink",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
 					"transformations": [
 						{
-							"name": "DeletingColumns"
+							"name": "derivedColumn"
 						},
 						{
-							"name": "ChangingDatatypes",
-							"description": "Creating/updating the columns 'location, size, total_sqft, bath, price'\n\n\nconvert Datatypes"
+							"name": "select1"
 						},
 						{
-							"name": "AddingColumns"
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "CheckingNULLS"
 						}
 					],
 					"scriptLines": [
@@ -668,30 +825,37 @@
 						"          area_type as string,",
 						"          availability as string,",
 						"          location as string,",
-						"          size as string,",
+						"          size as integer,",
 						"          society as string,",
-						"          total_sqft as string,",
-						"          bath as string,",
+						"          total_sqft as integer,",
+						"          bath as integer,",
 						"          balcony as string,",
-						"          price as string",
+						"          price as integer",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> HousePricesSource",
-						"HousePricesSource select(mapColumn(",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"select1 derive(price_per_sqft = ({price(in lakhs)} * 100000  /  total_sqft)) ~> derivedColumn",
+						"source1 select(mapColumn(",
 						"          location,",
-						"          size,",
 						"          total_sqft,",
 						"          bath,",
-						"          {price(in Lakhs)} = price",
+						"          {price(in lakhs)} = price",
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> DeletingColumns",
-						"AddingColumns derive(bath = toInteger(bath),",
-						"          {price(in Lakhs)} = toInteger({price(in Lakhs)}),",
-						"          total_sqft = toInteger(total_sqft)) ~> ChangingDatatypes",
-						"ChangingDatatypes derive(price_per_sqft = ({price(in Lakhs)} * 100000) / total_sqft) ~> AddingColumns"
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"derivedColumn derive(price_per_sqft = round(({price(in lakhs)} * 100000) / total_sqft, 2)) ~> derivedColumn1",
+						"derivedColumn1 filter(!isNull(total_sqft)) ~> CheckingNULLS",
+						"CheckingNULLS sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 					]
 				}
 			},
@@ -919,7 +1083,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_House_Price_Project')]",
+			"name": "[concat(parameters('factoryName'), '/pl_House_price_Project')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -938,11 +1102,12 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "DataFlow_House_price_Project",
+								"referenceName": "DataFlow_House_Price_Project",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"HousePricesSource": {}
+									"source1": {},
+									"sink1": {}
 								}
 							},
 							"staging": {},
@@ -952,6 +1117,45 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Data flow1",
+								"dependencyConditions": [
+									"Completed"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "House_source",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
 					}
 				],
 				"policy": {
@@ -960,7 +1164,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/DataFlow_House_price_Project')]"
+				"[concat(variables('factoryId'), '/dataflows/DataFlow_House_Price_Project')]"
 			]
 		},
 		{
