@@ -1,0 +1,226 @@
+
+Steps to migrate from on-premise to Cloud premise
+
+ex:
+mysql:mydb:table:sales-------->migrate this data into Azure Datalake Storage(ADLS)
+
+Azure datalake Gen2:mystorage(account):mydata(container)
+
+          source                  destination
+   (mysql--sales table)        (Datalake--->mydata container)
+  1.IR-->self-hosted IR        1.IR---->AutoIR-->No need to create
+  2.Linked service             2.Linked service
+   (ls_mysql_mydb)               (ls_mystorage)
+  3.Dataset                    3.Dataset
+   (ds_mysql_mydb_sales)         (ds_mystorage_mydata)
+
+
+==============================================================================
+Follow the below steps
+----------------------
+
+Step 1: Creating Integration runtime for source
+
+       Creating a dataset for source table
+       but directly we cannot create it
+       I need Linked service--->for that we require Integration IR
+       -here mydata object is outside Azure
+
+step 1: Create self-hosted IR ==>Name : hostmysqlIntegration
+==============================================================================
+
+Step 2: Creating Linked Service for source--->not for mysql
+                                           for mydb of mysql
+
+        In mysql--->Multiple databases can exist
+        for which databse-->We want to create Linked service ,we create
+        
+        Name :ls_mysql_mydb
+
+        Once we created Linked service for a database,we can access all the
+        data objects like tables,views etc
+
+==============================================================================
+Step 3: Create dataset for source----> mysql table
+
+         Name :ds_mysql_mydb_sales
+              
+               sales--->Pysically it is a table
+                        but as ADF Level, it is a dataset
+
+         This is the work only for source
+          About the target,we need to configure
+
+===============================================================================
+Step 4:  Creating Integration Runtime  for target(datalake)
+        
+        Target--->Azure Datalake
+       
+        for linked service--->Integration Runtime is required
+
+        should i create IR here??no 
+
+        here we no need to create it---->bcoz ur target(datalake), part of
+        Azure Storage Service
+        
+        So here Auto IR to be used
+
+        means no need to create Integration Run-time(IR)
+
+        here no need to create IR for datalake
+
+
+==============================================================================
+Step 5 : creating Linked service--->For target-->Azure datalake Gen2
+
+         here we are creating Linked service,not for Azure datalake
+         we are creating for storage Account--->"mystorage"
+
+         Name: ls_datalake_mystorage-->here no need of container name
+                                       
+==============================================================================
+Step 6: Create dataset for target container--->"mydata"
+
+        container-->i.e root folder,
+
+       under container--->we create folder--->under folders--->
+       create sub-folders, under sub-folders---->files
+
+       Name :ds_datalake_mystorage_mydata
+
+      Now to create your pipelines, all pre-requsites are ready
+
+============================================================================
+step 7:  Creating a pipeline
+         create a pipeline to load data from source to sink
+
+         source--->mysql
+       
+         sink----->datalake
+      
+         within the pipeline--->we need to keep activities
+
+   step 7.1
+         Activity is not independent
+         Activity is a part of pipeline
+
+       configure "copy data activity"
+       within this, it is asking 2 options
+       1)Source dataset: ds_mysql_mydb_sales
+       2)sink dataset:   ds_datalake_mystorage_mydata
+       here all pipeline configuration is ready
+       here only one activity in my pipeline
+
+==============================================================================
+step 8: publishing the pipeline
+        once pipeline is published--->it is permanently saved
+        If you wont publish,if your session terminates(or) if you quit
+        from the portal------>your pipeline is not available
+
+        if you publish--->the pipeline will be permanently avaialable
+==============================================================================
+Step 9: Running the pipeline in 2 ways     
+        1.trigger mode
+        2.Debug mode--->Generally developers work with debug mode
+
+        Assume your pipeline has 10 Activities
+
+        when you submit or run ur pipeline
+
+        bcoz of some Activity, your pipeline execution will be terminated
+
+     You want to clearly know that at which activity-level the failure happened
+     you want to know then debug mode is the best.
+
+     thats why while developing pipelines and while testing the pipelines
+     we use debug mode
+     -------------------------------------------
+     trigger mode :we have 2 options
+         1)on-demand :Scheduling pipeline on-demand
+                      means whenever you submit only, execution will happen
+         2)Schedule  :Scheduling pipeline is based on time and date
+
+     suppose you decided to run pipeline
+     hourly once---->we can configure
+                     we can schedule it
+
+==============================================================================
+These 9 steps we need to follow
+wjen you are migrating from your on-premise data to cloud premise
+
+=============================================================================
+
+ex:
+   I want to load data from
+    Azure data Lake ------->to--------->Azure sql
+
+   here both are Azure related
+   here which Integration Run-time---->Auto IR--->No need to create this
+
+   here how many linked services required---->2
+   
+   one linked service------>for Azure Data Lake
+   one   "       "   ------>For Azure sql  
+   we need to create these
+
+   again source is one file
+          target is one table
+
+   how many datasets required--->2
+   for file---->one alias name--->1 dataset
+   for table--->one alias name--->1 dataset
+
+   once datasets are ready, creating pipelines and running the pipelines
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

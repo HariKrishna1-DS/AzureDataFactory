@@ -1,0 +1,264 @@
+
+
+
+conditional split:
+     There are many ways for conditional split
+      one of the way is filter
+
+Task: input container has multiple files
+      all files which start with 'adf' into-------->containerx
+      all files which are not starting with 'adf'-->containery
+
+--------------------------------------------------------------
+step 1:
+source-->mystoragelake5001-->source------->7files are there
+                                          adf file1.txt,
+                                          adf file2.txt
+                                          adf file3.txt
+                                          spark1.txt
+                                          spark2.txt
+                                          emp.txt
+                                          sample1.txt
+
+Target--->mystoragelake502------->2 containers-->containerx
+                                                 containery
+
+==============================================================================
+step 2: Linked services are already available
+         ls_mystoragelake5001
+         ls_mystoragelake502
+==============================================================================
+step 3: Datasets
+        source--->ds_mystoragelake5001_source
+        Target--->create 2 datasets
+                  dataset--->Newdataset--->search :data lake---->continue
+                                           delimitedtext--->continue
+
+                  Name:ds_mystoragelake502_containerx
+                  linked service: ls_mystoragelake502
+                  file path---->browse--->containerx
+                  first row as header
+                  ok
+                  Publish all--->publish
+
+        creating one more dataset
+                 dataset--->Newdataset--->search :data lake---->continue
+                                           delimitedtext--->continue
+
+                  Name:ds_mystoragelake502_containery
+                  linked service: ls_mystoragelake502
+                  file path---->browse--->containery
+                  first row as header
+                  ok
+                  Publish all--->publish
+
+==============================================================================
+Entire process:
+                    |--Filter1(starts with 'adf')-->o/p 3 files--->foreach1(copydata1)
+     Getmetdata-----                                               here copydata executed for 3 times
+                                                                   and 3 files copied to containerx                  
+                    |--Filter2(not starts with'adf')->o/p 4 files-->foreach2(copydata2)
+                                                                    here copydata executed for 4 times
+                                                                    and 4 files copied into containery
+==============================================================================
+step 4: Pipeline---->New pipeline------->Name:conditionalsplit
+        search :Get Metadata
+                settings:
+                         Dataset :mystoragelake5001_source
+                         Fieldlist : +new
+                                      Argument  select childitems
+                         validate
+                         debug--->
+                          GetMetadata--->o/p 7 files
+
+o/p of Get Metadata is:
+"childItems": [
+		{
+			"name": "adf file1.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file2.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file3.txt",
+			"type": "File"
+		},
+		{
+			"name": "emp.txt",
+			"type": "File"
+		},
+		{
+			"name": "sample1.txt",
+			"type": "File"
+		},
+		{
+			"name": "spark1.txt",
+			"type": "File"
+		},
+		{
+			"name": "spark2.txt",
+			"type": "File"
+		}
+	],
+------------------------------------------------------------
+filters:
+2 additional filters am going to add
+                                    |------>Filter1(starts with 'adf')
+   search :filter       Get Metadata
+                                    |------>Filter2(not starting with 'adf')
+
+   click filter1
+         settings:
+       items(inpuildit)->add dynamic content-->select-->GetMetadata1 childItems
+                        @activity('Get Metadata1').output.childItems
+
+       condition : add dynamic content--->Functions-->startswith
+                     @startswith(item().name,'adf')
+       ok
+ 
+  click filter2
+         settings:
+       items(inpuildit)->add dynamic content-->select-->GetMetadata1 childItems
+                        @activity('Get Metadata1').output.childItems
+
+       condition : add dynamic content--->Functions->logical functions
+                     @not()
+                     @startswith(item().name,'adf')
+                     merge both
+                     @not(startswith(item().name,'adf')
+      ok
+     validate
+     debug
+      filter1 o/p--->3 files
+      filter2 o/p--->4 files
+      filter1 and filter2 are parallely executed, as there is no dependency
+
+     o/p of filter1 is:
+
+     "Value": [
+		{
+			"name": "adf file1.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file2.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file3.txt",
+			"type": "File"
+		}
+	]
+
+-----------------------------------------------------------------------------
+foreach
+
+       for 2 filters--->2 foreach activity
+
+       search :foreach   
+
+                                    |------>Filter1----->foreach1(copy data1)
+   search :filter       Get Metadata
+                                    |------>Filter2----->foreach2(copy data2)
+
+  click foreach1(atleast one subactivity in it-->copyActivity)
+
+        settings:
+             sequential   True
+             Items(Input) :add dynamic content--->Filter1 activity o/p
+                            @activity('Filter1').output.Value
+             Activities
+                         Foreach       edit-->click
+                         search :copydata
+                         source: ds_mystoragelake5001_source
+                                 takes filter o/p files only so
+                                 select-->wild card folder path
+                    source-->add dynamic content--->foreach1 current item
+                             @item().name
+                    sink: ds_mystoragelake502_containerx
+
+
+click foreach2(atleast one subactivity in it-->copyActivity)
+
+        settings:
+             sequential   True
+             Items(Input) :add dynamic content--->Filter1 activity o/p
+                            @activity('Filter2').output.Value
+             Activities
+                         Foreach       edit-->click
+                         search :copydata
+                         source: ds_mystoragelake5001_source
+                                 takes filter o/p files only so
+                                 select-->wild card folder path
+                    source-->add dynamic content--->foreach1 current item
+                             @item().name
+                    sink: ds_mystoragelake502_containery
+                    ok
+            publish all--->publish
+            validate
+            debug----->Track activity by activity
+                       Getmatata-->executes---->only once
+                       Filter  --->executes---->2 times(as 2 filters)
+                       foreach1--->executes---->3 times
+                       foreach2--->executes---->4times
+                       copy data1->executes---->3times-->3 files copied into containerx
+                       copy data2->executes---->4times-->4 files copies into containery
+            check o/p--->mystoragelake502---->containerx--->3files
+                                              containery--->4files
+
+==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+             
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+
+
+
+
+        
+                         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+     
+      

@@ -1,0 +1,85 @@
+
+
+Task: Copying data from one datalake storage account to another datalake 
+      storage account
+
+ 2 diff storage accounts---->2 linked services required
+
+for 1st datalake storage account--->one linked service
+    2nd datalake storage account---<another linked service
+
+create--->mystoragelake7001--->container--->source--->emp.txt
+Create--->mystoragelake7002--->container--->target
+here container compulsory-->without container-->we cannot dump data
+
+while creating mystoragelake7002, disable softdelete option and create
+
+
+=============================================================================
+Step 1: Integration Runtime--->autoIR
+
+=============================================================================
+Step 2:Creating linked sevice for source
+           name :ds_mystoragelake7001--->already available
+
+       Creating alinked sevice for target
+          manage-->Create--->new --->Linked service
+                             name:ds_mystoragelake7002_target
+                             storage account :mystorageake7002
+    before creating check--->if softdelete option is disabled for blob/container
+    create-->
+==============================================================================
+step 3:Creating Datasets
+            for source-->ds_mystoragealake7001_source_emp -->already available
+
+            for target-->ds_mystoragelake7002_target
+            Dataset-->Newdataset--->Search:data lake--->delimited text-->next
+            Name: ds_mystoragelake7002_target
+            linked service :ls_mydatalake7002
+            browse--->target
+           first row as header--->True
+           create-->
+           publish all ---->publish
+
+==============================================================================
+step 4:Create pipeline
+       pipeline--->new pipeline-->Name:copy_src_tgt_diffaccounts
+
+                  Activity--->Copy data activity
+
+                  search: copy data
+                          source:ds_mystoragealake7001_source_emp
+                          sink:ds_mystoragelake7002_target
+                    publish all--->publish
+
+==============================================================================
+Step 5: Running pipeline
+            Add trigger--->trigger now--->Run suceeded
+
+            Goto datalake-->mystoragelake7002--->target-->we see emp.txt 
+
+==============================================================================
+In this way Organizations use diff storage accounts
+
+Q)Why diff storage accounts--->why not one
+
+-for diff depts or diff branches or diff regions of bussiness--->
+ diff datalkes are used
+
+one more reason is--->for backup
+
+-keep all rawdata in one datalake and all the transformed data--> in another 
+ datalake
+
+==============================================================================
+datalake-emp.txt----->azure sql
+
+
+
+
+
+
+
+
+
+

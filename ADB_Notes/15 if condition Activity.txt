@@ -1,0 +1,45 @@
+If-condition
+
+
+               |------->filter1------->foreach1(copy data1)
+   Get Metadata
+               |------->filter2------->foreach2(copy data2)
+
+Instead of 2 filters---->replace with if-condition
+
+pipeline:
+--------
+
+           Get Metadata
+               Dataset :ds_mystoragelake5001_source
+               Fieldlist : +New
+                           Argument :child Items
+
+                                      
+    search :if-condition        Get Metadata-------->if-condition
+                        if True----->which Activity to be executed
+                           Flase---->which Activity to be executed
+
+                     Activities
+                      Expression :add dynamic content
+                                  Get MEtadat1 Childitems
+                                  @activity('Get Metadata1').output.childItems
+                      True --->starting with 'adf'
+                      False--->not starting with 'adf'
+
+                     True---->search: foreach--->we cannot take
+                                      bcoz ifcondition is a single iteration
+                                   we cannot have multiple iterations(foreach)
+                    This flow cannot work
+
+
+observe the other flow:
+----------------------
+              Get Metadata-------->foreach
+                                       |subActivity
+                                if-condition--->True--->Copy data-->containerx
+                                                False-->copy data-->containery
+
+
+In If-condition---->we cannot take foreach activity as the sub-activity
+but in foreach activity--->we can take if-condition as the sub-activity

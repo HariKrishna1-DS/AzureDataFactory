@@ -1,0 +1,74 @@
+
+Parameterization:
+-----------------
+Parameterize linked service and dataset:
+
+-how to pass parameter values from pipeline to data sets and 
+ from datasets to linked services i.e from one component to other
+
+ex: 
+I will create parameter for linked service
+At the time of creating linked service, I will parameterize it
+
+-linked services are always consumed by datasets
+-Datasets are consumed by pipeline
+-from dataset,we can pass value
+==============================================================================
+source----->table--->emp  ==========>dataset : ds_azsql_emp
+target----->datalake->container1====>dataset : ds_datalake_container1
+
+
+pipeline:
+       drag--->copy data activity
+                  source:  ds_azsql_emp
+                  sink  :  ds_datalake_container1
+
+Now run the pipeline
+       It reads from emp dataset
+    and writes into target dataset
+
+Tommorow you run again
+          -It reads from same  source dataset
+           It writes into same target dataset
+
+so always it is reading from same source and writing into same target
+
+tommorrow my objects got changed
+
+ex:  this time source===>ds_azsql_sales  (diff table)
+               target===>ds_datalake_container2
+
+can i use the same existing pipeline to run this???--->NO
+bcoz this is copying from sales to container2
+you cannot--->bcoz u have fixed values
+
+instead of fixed values====>if you parameterize them
+then===>whenever you want you will change the dataset names
+
+The physical locations of the dataset simply we change
+
+Automatically with the new datasets the copy will happen
+
+pipeline will be only one==>but datasets will be changing
+
+I-Time----------->emp to datalake
+II-Time---------->sales to datalake
+
+Instead of fixed values
+Instead of values as static
+     am making values as dynamic using parameters
+
+from pipeline ,we will pass the values
+
+==============================================================================
+Samething for linked services
+
+Parameterize linked service----->consumed by datasets
+
+from datasets,I will pass values to linked service
+
+-but dataset also i will parameterize
+ within datasets, I have parameters,but values passed from pipeline
+            
+             passing values to          passing values to
+so pipeline-------------------->dataset----------------------->Linked service

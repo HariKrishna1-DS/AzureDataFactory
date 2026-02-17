@@ -1,0 +1,815 @@
+Azure DAta Engineer(ADE)
+------------------------
+
+1.Why Azure Data Engineer
+
+2.Role of Azure DAta Engineer
+
+3.AZure Data Engineer compared with Datascientist/Data Analyst
+
+4.Various Azure Data Engineering products/Services
+
+5.Job Market of Azure Data Engineer
+===============================================================================
+Cloud--->is majorily utilized for---->storing,analyzimg and delivering data
+
+on-premises databases
+
+-we need to set up our own H/w Infrastructure
+
+-on top of that OS installation
+
+-Installation of Database server
+
+-Desiging Database objects
+
+To main all these, we require seperate teams
+
+1)H/w Team
+
+2)Operating System Team
+
+3)Networking team
+
+4)Security team
+
+5)Database Adminstrators
+
+
+Data Engineers with the help of cloud services work on data and make it
+structured and usefull
+
+Data Engineer
+           -Preparing data
+           -cleansing data
+           -Transforming data
+           -Processing data
+==============================================================================
+Data Scientist---->Strategizes for the future
+              -Analyze the data
+              -Identify the patterns
+              -Recommendations for the future
+
+===============================================================================
+Data Analyst------>Summarizes the past
+                  -Analyze the data
+                  -Summarize the data of the pat
+                  -Visualizing the data
+==============================================================================
+Data Engineering----->1)What are the sources of data
+                      2)What is the format of the data
+                      3)How to transform data
+                      4)What is the destination of the data(target)
+==============================================================================
+Data Engineer--->does all the ground work for Datascientist and Analyst
+
+more than 80% of data analysis work is done by Data Engineers
+==============================================================================
+Why Azure Data Engineer in demand???
+
+Role of Azure Data Engineer:
+----------------------------
+
+1.Designing entire data flow architectre
+
+2.Creating Data warehouse for storage 
+
+3.ETL 
+
+4.Data monitoring
+
+5.Data Security
+
+6.Collaboration and communication
+
+7.Automation 
+==============================================================================
+
+Azure Data Engineering products/Services
+
+1.Azure Sql
+
+2.Azure Datalake
+
+3.Azure Data Factory(ADF)
+
+4.Azure Synapse Analytics
+
+5.Azure Databricks
+
+6.Azure CosmosDB
+
+7.Azure Streaming
+
+8.Azure keyvault
+==============================================================================
+1.Azure sql : It is a cloud RDBMS database of microsoft in Azure
+              It is for OLTP operations
+
+=============================================================================
+2.Azure Datalake
+       -It is a Distributed file systen with un-limited data storage in cloud 
+        that is datalake
+       HDFS--------------->onpremises DFS
+       Azure Datalake ---->Cloud DFS
+
+ It is a Repository of large varieties of STructured,un-structures and
+ semi-structued data
+
+Evert Cloud Datalake provides some benefits
+1.Unlimited data storage
+
+2.Supports all varieties of data-->1)Structured data
+                                   2)Semistructured data
+                                   3)un-structured data
+3)Supports all formats of data---> .txt,.csv,.tar,.zip
+
+
+here data in files--->means we cannot setup relationship b/w files
+                      but we can setup relation b/w tables
+
+emp.txt
+dept.txt
+attendance.txt
+salaries.txt
+here we cannot setup relatiosnship here
+
+assume we have 4 tables
+
+Orders
+Salestransactions
+customers
+products
+
+what is the relationship?
+
+order of what--->product--->booked for whom--->a customer--->
+once order confirmed as a transaction
+
+so am expecting a cloud RDBMS--->That too for DWH--->That too am expecting
+parallel processing---->That is nothing but Azure Synapse 
+
+==============================================================================
+4. Azure Synapse:
+    -here we have a database called--->Azure Synapse sql pool db(synapsedb)
+   what is synapsedb--->Cloud DWH of Azure
+          -cloud RDBMS --->for DWH
+          -For Analytics
+          -for batch processing
+          -parallel processing
+
+when to go for Azure synapse--->If data is structured
+when to go for Azure Datalake--->If data is un-structured and semi-structured
+
+==============================================================================
+3.Azure Data Factory(ADF): It is a cloud based ETL of microsoft in Azure 
+                           It is a zero-coding ETL
+                           ADF is a Data Integration service
+
+
+OLTP Systems              Datawarehouse--->stores historical data
+
+ -Azure sql      ADF      Azure Synapse
+ -Oracle                  
+ -mysql                   Teradata
+ -sqlserver               Netezza
+ -mongodb                 Vertica
+
+ADF is a integration service b/w OLTP systems and Datawarehouse systems
+
+all transactions captured at OLTP systems
+
+how to bring these transactions into warehouse system--->we have ETL
+
+by using ETL tools---->Informatica,Datastage,Talend--->but all these are
+on-premise ETL Tools
+But i need a ETL on cloud---->i.e what ADF
+
+using ADF, we can connect with
+                              -cloud databases
+                              -non-cloud databases
+                              -nosql databases
+
+here it is ETL
+but our working style is---->ELT
+
+ETL---->For small volumes of Data
+ELT---->for huge volumes
+==============================================================================
+5.Azure Databricks(ADB):
+    -It is a fast Apache-spark based data analytics platform for microsoft azure
+
+  what is Databricks---->provides spark cluster in cloud
+  what is spark?
+  -It is a very high speed processing Execution model to process huge data
+   with high speed.
+   Spark features---->1)in-memory computation
+                      2)Supports MPP(Massive parallel process)
+   spark --->100 times faster than normal disk processing
+
+   spark requires a cluster--->which was provided by Databricks
+
+   Cluster: Group of nodes(CPUs) connected in a network
+            There are 2 types of nodes
+            1.Driver node(master node)
+            2.worker nodes(slave node)
+  It is a master-slave Architecture
+  i.e single master and multiple slaves(workers)
+
+  ex: assume we have 500nodes
+      This 500nodes cluster is worthy processing 2TB of data at a time
+
+     Tommorrow--->ur data volume increased
+       if same cluster is used-->speed goes down--->as data volume increased
+     so we need to scale up the cluster--->by adding new nodes(100 nodes added)
+                                          after 2 months again 100 nodes added
+     Everytime scaling up your physical data center is a complex task
+
+     so that's why--->i need a cluster in cloud and that too
+                      with auto-scaling capability
+
+     who is providing this-------->Databricks
+
+    Databricks--->provides spark cloud cluster with auto scaling feature
+
+    ex:
+       Today--->my dataloaad---->requires 100 nodes
+       Tommorrow--->data volume increased-->it has to be extended to 200 automatically
+   after processing is completed and again it has to revert back to 100nodes
+
+  This is General Databricks
+     -It cannot interact with my azure storage services
+
+  in Azure,storage services are
+     -azure sql
+      azure datalake
+      azure synapse
+  Regular databricks is not compatible with all azure services
+  that's why-->microsoft + Databricks collaboratively
+               launched a new product called Azure Databricks(ADB)
+
+ Azure Databricks(ADB):
+   -It is a spark cluster with autoscaling and compatable with all
+    azure storage services
+
+   Now ADB can read data from datalake
+                              azure sql
+                              cosmosdb
+                              synapsedb
+
+  For Normal databricks,we need to do lot of other settings
+   -we need to call diff API's
+
+  Databricks is not only for Azure,but also available for AWS and Google.
+
+  In Databricks, who is processing the data-->Spark
+
+  in Azure Databricks
+         Spark--->is the Execution weapon
+         You are a Developer--->To provide instructions
+                                to process the data in the form of coding to
+                                perform complex transformations
+
+  Pyspark--->Python API to use Spark-->Python +spark
+Cu
+  In most Databricks applications,pyspark is the majority of the code
+  currenty most of the projects are available in pyspark
+
+  Currently industry is taking 2 seperate developers
+  1)Databricks----->Seperate developer
+  2)ADF ----------->seperate developer
+    but in the futureyou require the knowlwdge in both
+
+===============================================================================
+ADF Vs ADB
+
+In ADF,we have 2 versions
+    -ADF Version1
+    -ADF Version2
+
+    In version2,we have concept called dataflows
+    dataflows--->used to perform transformations
+  
+    when dataflows are submitted
+           dataflows are internally converted into databricks jobs
+           here i no need to write any databricks code
+           here Execution is not done by ADF
+           Execution done by databricks
+
+   why again seperate developer required for databricks
+
+   -To develop some Custom functionalities,we require Databricks developer
+
+    ADF Cannot proccess GRAPh data and some kind of un-structured data
+
+    such kind of Analytics,we cannot do using ADF
+    and that too we cannot define then directly into our  dataflows
+
+    at that time--->we require databricks developer.
+
+==============================================================================
+Graph data:
+
+what do you mean by graph data??
+
+ex:
+  Facebook  connections
+     USer     friend
+     Amar     Ravi
+     Ravi     Ajay
+     Ajay     Amar
+
+here data shape is sstructured 
+here record to records, here are some interlinks
+
+ex: Ravi is the common friend for Ajay and Amar
+ what is the relation B/w Amar and Ajay--->friend of friend
+ such kind of interconnected records are called as Graph data
+
+ 2 types of Graphs
+  1-way Graph
+  2-way Graph
+
+  I     You
+  You to I------>Student---->one way
+   I to  you---->Teacher---->one way
+
+  Ravi(father)--->Giri(son)---->Father--->1 way
+  Giri ---------->Ravi -------->Son ----->1 way
+
+  Ajay--->Amul--->friend
+  Amul--->Ajay--->friend---->2-way relationship
+  If we reversewe need to get the same relation
+  in this way we have many interconnections
+  but all these interconnections are available in one table
+  with relationship 1-way or 2-way
+  Now i want to process this data
+
+ Processing this kind of graph data with sql queries is not possible in ADF-->
+ we need some special Graph Algorithms--->At that time ADF will not help
+ you in designing the dataflow to perform transformation
+
+so there should be some co-ordination b/w ADF and ADB developer
+
+ex:
+   in ADF --->when we open a new pipeline--->Databricks--->Notebook
+
+   This notebbok developed by databricks--->that is called by ADF developer
+     
+   so mutual co-ordination
+   
+==============================================================================
+
+
+===========================================================================
+6.Azure Streaming Analytics:
+   -It is a even processing engine for analyzing and processing high volums of
+     streaming data from multiple sources simultaneously
+
+  Directy ADF cannot extract data fromthe streaming sources
+  for that we have Azure Streaming
+
+  Diff between Traditional ETL Developer and Current DataEngineer
+
+  Data Engineer has some additional responsibilities
+
+  Data Engineer should be
+       -able to work with structured data like RDBMS
+       -able to work with nosql databases
+       -able to work with streaming data
+       -These streams are complex to capture,as they are getting generated
+        at a high rate of speed.
+
+ex: Linkedin---->in 2014 only
+                 it was generating 3Trillion transactions/10secs
+     If you like a post--->It is a transaction
+     If you dislike a post-> "       "
+     If you add  a friend--> "       "
+     If you post an article->"       "
+     In this way huge transactions
+
+    Now i require a special system
+    with how much speed the streams are generated
+    with that same speed we need to capture them
+
+    ex: In 5secs-->5TB worth of logs or streams are generated,
+        In that 5secs only,we shoukd be able to capture all
+     
+        Stream delivery output is 5secs------------>5TB
+        if capturing /Recieving capacity is 5TB in 1hr
+ 
+
+        The rate of speed of event generation if it is equal to
+        the rate of speed of capturing those events then there wont
+        be any data in the queue
+
+        here how much data is kept in the queue??-->
+        to capture 1 min data-->it takes 12 hrs 
+   
+        then we need a solution
+           -with how much speed the streams are generated with that same speed
+            the streams should be captured and processed
+        -For this we have streaming systems
+
+         Previously in spark,we have spsrk streaming
+          same way in Azure--->we have Azure streaming
+
+ Azure Streaming:
+             1)To capture high speed streams
+             2)To perform micro-batches
+
+diff b/w micro-batch Vs batch
+
+batch: bunch of records---->millions and trillions
+       batch processing scheduled every month end or month start
+       some jobs will be running or scheduled at weekends
+
+       ex: I want weekly sales
+           Entire ETL or ELT process comes under batch process
+           batch applications means user non-interactive applications
+
+           Online Applications are user interative Applications
+           Online Applications taking i/p from the user
+           batch applications taking i/p from databases,files or other sources
+
+ 
+          batches will run every day once
+          batches will run every week once
+             "     "    "  every month once
+             "     "       every Quaterly once
+             "     "    "  every half-yearly once
+
+         but now a days the requirement is for every 5secs, i want update
+         ex: Youtube is intrested in that
+             Amazon is intrested in that
+
+         ex: Amazon
+              If you keep navigating the Amazon products
+             in morninig if you login--->Your recommendations are different
+             in evening if you login---->  "       "            "     "
+             next day   "    "     "---->   "       "           "     "
+
+             same user--->Why recommendations are changing???
+             bcoz the preferences of the users are changing
+
+            Amazon tracking ur preferences--->It also tracks whether you are
+            a real user/dummy user
+
+            ur navigational patterns are recorded into weblogs
+
+            weblogs comes under streaming data
+
+            if you open any page a log record is generated
+            logs keeps on generating data
+            that data is called as streaming data
+
+
+          for 10secs worth data, they will capture and immediately
+          for 10secs woth they will apply batch process
+
+          the time interval b/w batch to batch is too small
+          so this is called micro-batch
+
+          This is not called as real-time, this is called as near real-time
+      
+       ex:Some event happened now and immediately if you want Live analytics
+          that is real-time
+
+         the near real-time analytics will happen by a process called micro-batch
+
+         Finally Azure Streaming performs 2 things
+              1)Capture high speed streams
+              2)performs micro-batching
+          
+============================================================================
+7.Azure CosmosDB: Azure cloud-based Nosql database
+
+oltp--->RDBMS+Nosql
+        RDBMS cannot solve all requirements,so we go for Nosql
+        Nosql is not replacement for RDBMS
+    what RDBMS cannot do???
+    -here in RDBMS,while creating table only,we define some structure(schema)
+     ex:  eid  ename  sal  dno city
+
+          I want to add some new cols
+          Every time i want to add a new column,i need to keep altering table structure
+    in sql-->record to record-->same no of fields to be maintained
+    but in nosql--->Schema less behavior--->record to record, diff no of fields
+                                            can be maintained
+
+    emp1--->with 5 fields
+    emp2--->with 7 fileds
+    emp3--->with 9 fields
+
+ex: Amazon
+    prod1--->book---->4 fields
+    prod2--->laptop-->5 fields
+    prod3--->TV------>6 fields
+    prod4--->AC------>7 fields
+
+Types of nosql databases: 4types
+
+1.key-value-------->ex: Riak,Pnut,Azure keyvault
+2.Document db------>ex: mongodb,couchdb,Azure cosmosdb,AWS dynamodb
+3.Columner db------>ex: hbase,Cassandra
+4.Graph db--------->ex: Neo4j,greenplum
+
+document db--->advantage-->record to record--->diff structure can be maintained
+               mongodb is on-premise database
+               I want the same features of mongodb on cloud and that too
+               on azure cloud, that is nothing but azure cosmosdb
+
+Azure cosmosdb---->It is a database
+                   what type of database--->Nosql
+                   under nosql--->which category--->documentdb
+
+
+columner db--->here rows are stored as columns
+                 
+            ex:          eid  ename   sal
+           row1--->      101   Ajay    50000
+           row2--->      102   Rahul   70000
+           row3--->      103   Amar    80000
+             This is row-oriented database--->oracle
+
+ The below is-->column-oriented--->columner db--->ex:hbase,cassandra
+
+               101     102     103
+               Ajay    Rahul   Amar
+               50000   70000   80000
+
+ex: Facebook
+    I will sign up---->my data stored in---------->documentdb
+    immediately my userid and pwd sent to--------->keyvaluedb
+    At the time of sign-in, I will be
+    authenticated by using ----------------------->keyvaluedb
+    
+    If I want to perform some operation
+    ex: In Linkedin or Facebook
+        I want to search for--->bigdata profiles
+        I get the bigdata profiles
+        This kind of search operations we can do 
+        easily using ----------------------------->columnerdb
+
+     In Facebook, am adding you as a friend
+     First i will send you a request--->u may accept/reject
+     If accepted---------->one connection created
+
+     I------->as a seperate record
+     You----->as a seperate record
+     but the connection is a graph record
+     these connections are stored in graphs in---->graph databases
+
+   
+      Tommorrow if i mouse-over your profile--->i see 250 friends-->connections
+
+      
+     Assume you are a ADF developer for a facebook kind of Organization
+     what all are the challenges?
+
+     -we have many data sources
+     -some datasources from RDBMS Category
+     -lot of other datasources are from Nosql category
+     -lot od data is streaming data
+     -collect all the data without any data loss
+      and taht too in optimized way i.e at cheaper cost with more performance
+      -finally safely load in into target systems
+      -and then transform and process
+      -Finaly resuslts kept in other target systems
+==============================================================================
+==============================================================================
+8.Azure keyvault :protecting data in the cloud
+                  for securities--->for username and password
+                  ploicy certificate and policy key
+                  public key and private key
+                  This kind of security information,we keep in Azure keyvault
+
+==============================================================================
+-Azure Data Engineer
+
+   -Daily 5TB data is coming
+
+    where the data is stored---->OLTP--->Azure sql or Azure cosmosdb
+
+    -Now using ADF, we connect to Azure sql/cosmosdb and extract data and
+     dunp into ------------>Azure Datalake
+
+
+    Your client is expecting the result by 10pm
+    I will run the process by 7pm
+    mostly by 8pm,extraction might be completed
+    data is loaded into datalake
+
+    Again I use ADF to perform Transformations
+
+    what kind of Transformations---->Aggregation Transformations
+
+    Before Aggreagation Transformations---->what is required-->Data cleaning
+
+    Data cleaning--->again done by ADF
+
+
+   Azure sql----ADF-->Azure-----Transform----SynapseDB--->Visualizations/Reports
+   CosmosDB          DataLake   using ADF                  1.PowerBi
+                                                           2.Tableau
+   <---Extract  and Load---->
+
+   cleaning data--->means Transformation
+   performing Aggregation-->means Transformation
+
+   Final result stored in Synapsedb
+
+   why directly i cannot load into synapsedb
+
+   bcoz synapse is a warehouse means it has tables, tables have contraints
+   like primary key ,foreign key and lot of other indexes
+
+
+   -when table has got lot of  indexes,at that time of loading, the loading
+    will be slow
+
+  -always i want a staging area like Datalake so that loading happens faster
+
+  -simply i dump or load the raw data into datalake and perform cleaning
+   and the cleaned data i will pass to the warehouse--->sysnapsedb
+
+   In warehouse, I wont keep the entire data bcoz
+                 5TB is the data volume
+   montly----->150TB is the data volume
+   yerly----->It will cross PB
+
+   Even Synapse cannot handle that much of data
+
+  so the processes results, that too recent  history i will maintain
+  in synapse and remaining data in the datalake
+
+  datalake is like a data storeroom
+
+  I will keep all the data in the datalake
+
+  how much data required,I will take and process and keep in synapse
+
+  from the synapse,your manager cannot understand the synapse results
+
+  -ur manager can understand visualizations using PowerBI,using Tableau
+
+  -The visualization developers are connection with synapsedb and
+   they provide visualization reports
+
+   here as a ADF developer, you are involving in 2 ares
+   1)OLTP systems---->ADF-------->Dalake
+                    Extract/Load
+
+  2)Datalake -------->ADF----------->Synapsedb
+                 cleaning/Transformation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=============================================================================
+
+Free Azure Subscription
+     -mobile no
+     -Email ID
+     -Credit card details-->2Rs
+      Company name
+      Company address
+
+      your address
+
+
+
+AZure Data Engineer(ADE)
+   1)AZure Data Factory(ADF)
+   2)Azure Databricks(ADB)
+   3)Pyspark
+   4)Azure Synapse Analytics
+
+         +
+   -Azure sql
+   -Azure Datalake
+   -Azure Cosmosdb
+   -Azure Streaming
+         
+
+1)Videos of the sessions
+2)soft copy of the notes
+3)whatsapp
+4)Assignments/Tasks
+5)Interview questions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

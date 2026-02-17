@@ -1,0 +1,107 @@
+
+
+Flatten Transformation:
+======================
+In previous JSON example, we have single array
+If you have multiple arrays and you want to flatten the cilditems
+here copy activity wont work--->Go  for dataflow
+for simple files go for copy activity
+
+if you want to change or modify go for dataflow
+
+==============================================================================
+source---->mystoragelake---->source-->employees.json
+target---->Azuretable---empsjsontab1-->auto created
+//employees2
+
+{
+ "emps":[
+        { "eid":101,
+          "ename":"Ajay",
+          "sal":90000,
+          "dno":11
+        },
+        { "eid":102,
+          "ename":"Blake",
+          "sal":70000,
+          "dno":12
+        },
+        { "eid":103,
+          "ename":"James",
+          "sal":50000,
+          "dno":13
+        }
+      ]
+}
+==============================================================================
+linked services available
+
+==============================================================================
+datasets: 2 datasets---------->1)ds_employees_json
+                               2)ds_myazsql_empsjsontab1-->dont provide tablename
+                                                           say none
+
+==============================================================================
+dataflow--->Name:dataflow_json3
+            add_source--->source1  
+                          ds_employees_json
+            source options
+             document type : select--->array of documents
+
+          source1------->flatten1
+                         unroll by---->emps[] (flattening recs based on which column)
+
+                         input columns--->reset
+                                          emps.eid------>eid
+                                          emps.ename---->ename
+                         inspect--->input/output
+                          data previes
+
+           flatten1----->sink1
+                         dataset: ds_azsql_empsjsontab1
+                         open--> ds_azsql_empsjsontab1
+                         Table name: dbo.empsjsontab1
+                         datapreview-->
+
+           New pipeline---->Name: jsonpipeline3
+                            drag->dataflow_json3
+                            validate
+                            debug--->
+                            select * from [dbo].[empsjsontab1]
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                          .
+                                          .
+             
+             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

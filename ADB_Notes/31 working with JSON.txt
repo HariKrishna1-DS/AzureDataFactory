@@ -1,0 +1,116 @@
+
+working with Json data
+----------------------
+JSON--->JAVA SCRIPT OBJECT NOTATION--->Collection of (k,v) pairs
+
+source---->mystoragelake401-------->source---->products.json
+target---->Azuresql table(prodtable)--->has to be auto-created
+
+//products.json
+{
+ "pid"   : 101,
+ "pname" : "sony",
+ "price" : 50000,
+ "city"  : "pune"
+}
+==============================================================================
+Linked services already available for datalake and azure sql
+
+=============================================================================
+Datsets---->2 datasets to be created
+           source---->ds_products_json
+
+           target---->ds_azsql_prodtable
+
+           Newdataset--->
+           Name :ds_Azsql_prodtable
+           Linked service* :ls_azsqldb401
+
+         Table name:
+         Import schema :None
+         ok
+         publish
+==============================================================================
+
+As it is a simple json---->I will go with copy activity
+
+pipeline---->new pipeline---->json1pipeline
+
+              copydata----->drag
+              source:
+              ds_products_json
+
+              sink:
+              ds_azsql_prodtable
+              Table option: auto create table---yes
+              open--->ds_azsql_prodtable
+              Table dbo.prodtable  
+              Edit
+publish
+
+debug--->
+
+Check the target--->
+A table gets created automatically
+
+Tables
+     -dbo.prodtable
+      select * from [dbo].[prodtable];
+
+    o/p: pid  pname  price city
+         101  sony   50000  pune
+
+===============================================================================
+Task 2: working with nested Json
+
+source---->mystoragelake401-------->source---->products2.json
+target---->Azuresql table(prodtable)--->has to be auto-created 
+          ->drop table [dbo].[prodtable] or provide another tablename            
+             
+//products2.json
+{
+ "pid"     : 101,
+ "pname"   : "sony",
+ "price"   : 50000,
+ "address" :{"area":"Ameerpet","city" : "Hyd"},
+ "features":[{"Ram":"16GB","camera":"50MP","Battery":"5000MHZ"}]
+}
+==============================================================================
+Linked services already available for datalake and azure sql
+
+=============================================================================
+Datsets---->1 datasets to be created
+              source---->ds_products2_json
+
+        target---->ds_azsql_prodtable--->already avialable
+==============================================================================
+
+I will go with copy activity
+
+pipeline---->new pipeline---->json2pipeline
+
+              copydata----->drag
+              source:
+              ds_products2_json
+
+              sink:
+              ds_azsql_prodtable
+              Table option: auto create table---yes
+              open--->ds_azsql_prodtable
+              Table dbo.prodtable2  
+              Edit
+              mapping---->import schema
+publish
+
+debug--->
+
+Check the target--->
+A table gets created automatically
+
+Tables
+     -dbo.prodtable
+      select * from [dbo].[prodtable2];
+
+    o/p: pid  pname  price area     city Ram  Camera Battery
+         101  sony   50000 Ameerpet  Hyd 16GB  50MP  5000HZ
+

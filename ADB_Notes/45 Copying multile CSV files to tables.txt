@@ -1,0 +1,150 @@
+
+
+Task: Multiple CSV files------->into multiple tables
+    
+
+source--->mystoragelake401--->input1(container)
+                              employee1.csv
+                              employee2.csv -->with diff schema
+                              employee3.csv
+Target--->azuresql->Create 3 diff tables for the above csv files automatically
+
+//employee1.csv
+Eid	Ename	Salary	sex	dno	city
+101	Miller	10000	m	11	hyd
+102	Blake	20000	m	12	pune
+103	Sony	30000	f	11	hyd
+104	Sita	40000	f	12	pune
+105	John	50000	m	13	hyd
+
+//employee2.csv
+Eid	Ename	Salary	sex	dno	city	dname
+101	Miller	10000	m	11	hyd	mrkt
+102	Blake	20000	m	12	pune	fin
+103	Sony	30000	f	11	hyd	mrkt
+104	Sita	40000	f	12	pune	fin
+105	John	50000	m	13	hyd	Accounts
+
+//employee3.csv
+Eid	Ename	Salary	dno	city	designation
+101	Miller	10000	11	hyd	SE
+102	Blake	20000	12	pune	SE
+103	Sony	30000	11	hyd	SE
+104	Sita	40000	12	pune	SE
+105	John	50000	13	hyd	SE
+
+==============================================================================
+linked services are already available
+
+==============================================================================
+Datasets: 2 datasets-->for source and target
+
+for source
+dataset--->New dataset--->search :datalake--->delimited text-->continue
+
+Name:ds_mystoragelake401_multiplecsv
+Linked service:ls_mystoragelake401
+file path-->browse-->input/   /
+First row as header-->yes
+import schema-->None
+
+
+==============================================================================
+Creating the 2nd datasetfor target tables:
+
+dataset--->Newdataset--->search:Azure sql
+                        Name:ds_azsql_target
+                        tablename:
+                        import schema:None            
+                        ok
+
+paramters--->+New---->Name       Type     Default Value
+                      TableName  string
+Connection:
+
+Table : dbo .add dynamic content---->parameters
+                                      TableName--->click-->Expn generates
+                                  Expn:@dataset().TableName
+
+=============================================================================
+pipeline --->New pipeline--->Name:multiplecsv_tomultipletables
+
+  search:GetMetadata
+         settings:
+          Source: ds_mystoragelake401_multiplecsv
+
+          Fieldlist--->+New--->arguments-->select childitems
+          publish
+          validate 
+          debug
+-----------------------
+Get Metadata1--->Foreach
+                 settings
+                 sequential-->yes
+                 items----->Add dynamic content--->Getmetadata1 child items
+                           expn:@activity('Get Metadata1').output.childItems
+
+                 Acitivities
+                  Foreach         edit
+                                 search :copydata
+
+-------------------------------------------------------------------------------
+Go back to pipeline--->copydata
+                       source-->ds_mystoragslake401_multiplecsv
+                       wild card file path
+                       file path :input/     /add dynamic content-->
+                                             expn :item().name
+                       Sink dataset*:ds_azsql_target1  +Open
+
+                       Dataset properties
+                       Name	     Value	Type
+                       TableName     add dynamic content--->
+                                     @replace(item().name,'.csv','')
+                       Table option :auto create table
+
+                       publish all
+                       validate
+                       debug
+
+  check the output in the target--->
+     select * from [dbo].[employee1]
+     select * from [dbo].[employee2]
+     select * from [dbo].[employee3]
+    
+
+
+
+
+
+
+
+
+               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

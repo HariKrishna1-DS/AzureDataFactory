@@ -1,0 +1,163 @@
+
+
+Task: Copying multiple json files to multiple tables using parameterization
+      using a single pipeline
+
+source--->Mystoragelake401--->input1--->products.json
+                                   ---->emps.json
+                                   ---->sample1 folder(also has a folder)
+
+Target--->Azuresql------>1)products table
+                         2)emps table -->has to be autocreated
+copy products.json file data to   products table
+copy emps.json file data to emps table
+//products.json
+{
+ "pid"   : 101,
+ "pname" : "sony",
+ "price" : 50000,
+ "city"  : "pune"
+}
+
+//emps.json
+{         
+          "eid":101,
+          "ename":"Ajay",
+          "sal":90000,
+          "dno":11
+         }
+===============================================================================
+copy activity should read data and create cols accordingly as per the file
+
+===============================================================================
+linked services are already available
+===============================================================================
+Datasets--->2 datasets
+
+source dataset creation
+dataset-->new dataset-->search:data lake--->select json-->continue
+dataset Name:ds_json
+linked service:ls_mystoragelake401
+filepath-->browse-->input1
+First row as header--->True
+import schema-->None
+ok
+==============================================================================
+Target dataset
+dataset-->new dataset-->search:Azure sql--->continue
+dataset Name:ds_jsontable1
+linked service:ls_azsqldb401
+TableName:
+import schema-->None
+ok
+parameters--->+New
+               Name       Type     Default value
+               TableName  string
+
+Connections
+           tablename : dbo.add dynamic content-> parameters
+                                                  TableName-->Click this
+                                                              Expn generates
+                       expn:@dataset.TableName
+                       ok
+==============================================================================
+Pipeline--->NewPipeline---->Name:copy_multiplefiles
+            search:Get Metadata ---->brings all the files in the input container
+                   settings
+                   datset:ds_json
+                   Fieldlist:New
+                             Arguments:select-->child items
+                   Validate---->
+                   debug------->
+                   output---->2 files +1 folder
+output of GetMetadata
+ {
+	"childItems": [
+		{
+			"name": "emps.json",
+			"type": "File"
+		},
+		{
+			"name": "products.json",
+			"type": "File"
+		},
+		{
+			"name": "sample1",
+			"type": "Folder"
+		}
+	],
+
+==============================================================================
+GetMetadata---->filter
+                filters only the files--->should ignore the folders
+ 
+               Items(input)-->add dynamic content
+                              select GetMetadata1 activity childitems
+                                 @activity('Get Metadata1').output.childItems
+               condition :@equals(item().type,'File')
+
+               Validate-->
+               debug----->
+                    output--->2 files(json files)
+
+Filter output:
+ {
+	"ItemsCount": 3,
+	"FilteredItemsCount": 2,
+	"Value": [
+		{
+			"name": "emps.json",
+			"type": "File"
+		},
+		{
+			"name": "products.json",
+			"type": "File"
+		}
+	]
+} 
+===============================================================================
+filter1--->foreach1
+            settings
+                sequential-->yes
+                items--->add dynamic content--->select filter1 activity output
+                         @activity('Filter1').output.Value
+
+                  here Value-->is array of files brought by filter activity
+            activities
+                 foreach1       edit
+                                drag---->copy data
+                                source:ds_json
+                                   wild card file path
+                                path: input1/    /add dynamic content
+                                                  expn: @item().name
+                                sink:
+                                  dataset:ds_jsontable1
+                                          immediately we see
+                                   Dataset properties
+                                   Name          Value
+                                   TableName     @replace(item().name,'.json','')
+                                               replacing .json with empty string
+                                               as i doesnt want tablename with
+                                               .json extension
+                                               if we say-->item().name
+                                             we get tablename same as filename
+                                   Table option : Auto create Table
+                                   Validate--->
+                                   debug------>
+                                It creates 2 tables with same cols as per file
+                                select * from [dbo].[products];
+                                 select * fron [dbo].[emps];
+==============================================================================
+                                    
+
+
+
+
+
+
+
+
+
+
+
+

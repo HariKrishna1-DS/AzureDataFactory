@@ -1,0 +1,136 @@
+
+Lookup Activity:
+----------------
+        search :lookup
+
+        settings:
+               source dataset :ds_mystoragelake5001_source_emp
+
+               first row only---->disable this--->means all rows
+
+               validate 
+               debug------>succeeded
+    what is the input------->emp.txt
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+
+output is:
+{
+	"count": 5,
+	"value": [
+		{
+			"eid": "101",        here record is a json object
+			"ename": "Miller",   here each one  is a an item
+			"sal": "10000",      I want sal field-->item().sal
+			"gend": "m",         I want ename fileld-->item().ename
+			"dno": "11"
+		},
+		{
+			"eid": "102",
+			"ename": "Blake",
+			"sal": "20000",
+			"gend": "m",
+			"dno": "12"
+		},
+		{
+			"eid": "103",
+			"ename": "Sony",
+			"sal": "30000",
+			"gend": "f",
+			"dno": "11"
+		},
+		{
+			"eid": "104",
+			"ename": "Sita",
+			"sal": "40000",
+			"gend": "f",
+			"dno": "12"
+		},
+		{
+			"eid": "105",
+			"ename": "John",
+			"sal": "50000",
+			"gend": "m",
+			"dno": "13"
+		}
+	],
+
+all the previous activities were able to touch the files but not the data
+look up deals with data of a file
+
+
+Lookup is the 1st activity
+              2nd activity is if-condition
+              3rd activity is filter
+              Now you can process the data--->that is the advantage of look-up
+
+
+for lookup, I want filter(i.e i want only sal>=30000)
+
+           lookup---->filter
+                       i/p: lookup activity output.Value
+                      condition ---->item().sal>=30000
+
+                      >=-----we dont have this symbol
+                      we write as-->
+                      @greaterOrequals(item().sal,30000)
+
+Get MEtadata---->touches all the files in a container
+                 but it cannot touch the data in the files
+
+             i want to read data of a file, but not the file-->go for lookup
+2 types of lookup's in ADF
+1.lookup activity
+2.lookup transformation---->in dataflows
+
+Limitations of lookup activity
+
+1.5000,4mb,24hrs
+  It can read small volumes-->upto 5000rows(so everytime lookup activity 
+  cannot work)
+
+2)Data volume should not exceed 4mb(i.e max limit 4mb)
+
+3)Runtime execution timeout---->24hrs max limit
+  if your pipeline activity exceeds more than 24hrs, pipeline will be 
+  automatically discarded
+   
+  ex:  data <4mb only , but no of recs=6000--->It wont fail--->it reads 5000rows
+       if rows<5000 ,but data>4mb------>then it will failed
+
+
+      This is version1 style
+      In Version2---->we got dataflows---->lookup transformation
+
+ex If file has GB's of data--->I want to read and i want to perform
+   transformations and then write into sql or cosmosdb------->
+   ------>so here apply copy activity
+   ------>keep data in datalake
+   ------>now apply dataflows
+   ------>within dataflows---->we have many transformations
+   ------>using transformations process data--->write into target
+                     
+ lookup activity and lookup transformation---->both are different
+
+=============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

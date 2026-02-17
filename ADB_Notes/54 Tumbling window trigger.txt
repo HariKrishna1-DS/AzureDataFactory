@@ -1,0 +1,281 @@
+
+Tumbling window Trigger:
+-----------------------
+-Used to schedule the execution of pipeline based on predefined time
+ intervals known as tumbling windows
+
+diff b/w Schedule trigger and tumbling window
+
+Schedule trigger--->we can run with present date and future date
+
+tumbling window---->we can run with historical date(previous date)
+
+
+tumbling windows are fixed size,non overlapping time intervals
+
+-The trigger fires at the start off each tumbling window,initiating the
+ execution of the associated pipeline
+
+ex:
+  You want to run the pipeline from 1st July to 6th July i.e for every 24 hours/day
+  and create a csv file in the storage account
+
+  Now it will divide your execution into window
+
+ 1st Jul--->2nd Jul----->1st window -->1 pipeline runs--->1 csv to be created
+ 2nd Jul--->3rd Jul----->2nd window -->1 pipeline runs--->1 csv to be created
+ 3rd Jul--->4th Jul----->3rd window -->1 pipeline runs--->1 csv to be created
+ 4th Jul--->5th Jul----->4th window -->1 pipeline runs--->1 csv to be created
+ 5th Jul--->6th Jul----->5th window -->1 pipeline runs--->1 csv to be created
+
+so here the pipeline runs for 5times
+here we have given 24hr as the interval
+
+so it will divide ur run into windows that's why we call tumbling window trigger
+==============================================================================
+
+Task:Copy data from Azure sql database to datalake for every 24hrs as a csv file
+
+source---->Azuresql
+Target---->Datalake--->outputcsv(container)
+
+Due to some reason the data was missed
+so we need to backfill from 1st July to 6th July
+
+so we need to run the pipeline from 1st July to 6th July which is 
+historical data for us
+
+how we backfill--->
+so whenever we want to backfill the data for a specific time period--->
+we use this tumbling window trigger
+
+
+here running the pipleine from 1st july to 6th July and set the interval as 24hrs
+==============================================================================
+
+sqldata<---linkedservice<--dataset<---copydata-->dataset-->linkedservice->datalake
+
+==============================================================================
+Goto Azuresql and create a table
+
+create table sales(pid int,pname varchar(20),price int,salestime datetime);
+
+insert into sales values(1,'samsung',10000,'2024-07-01 7:30:07.00'),(2,'Sony',20000,'2024-07-02 6:30:05.00'),(3,'LG',30000,'2024-07-03 10:30:00.00'),(4,'Sony',40000,'2024-07-04 6:30:05.00'),(5,'LG',50000,'2024-07-05 4:30:00.00');
+
+select * from dbo.sales;
+
+select * from sales where salestime between '2024-07-01 7:30:07.00' and '2024-07-02 6:30:05.00';
+
+Now i will create a stored procedure and parameterize startdate and enddate
+
+create procedure cust_sales
+@startdate varchar(120),
+@enddate varchar(120)
+as begin
+select * from sales where salestime between @startdate and @enddate end
+
+exec dbo.cust_sales '2024-07-01 7:30:07.00','2024-07-02 6:30:05.00';
+
+================================================================================
+
+Now we need to copy each day data from 1st july to 6th july to datalake as csv
+
+we will run this procedure and pass the parameters startdate and enddate
+in datalake itself
+
+===============================================================================
+pipeline--->Newpipeline--->Name:Tumblinwindowgpipeline
+
+copy data--->drag
+source-->
+dataset-->New-->Search:zure sql
+          Name:ds_azsql_sales
+          Tablename:
+          import schema:None
+           ok
+
+copy data
+     source dataset:ds_azsql_sales
+
+Use query :Stored procedure
+Stored procedure name :[dbo].[cust_sales]
+
+Stored procedure parameters
+Import parameter--->click
+parameters gets imported
+Parameter
+Name      Type    Value
+enddate   
+startdate
+
+---------------------------------------------------------------------------
+Now create pipeline parameters
+
+click-->emptyspce beside copydata
+
+parameters--->New-->2 parameters
+
+Name    Type   value
+penddate
+pstartdate
+
+these values we pass to stored procedure
+
+click-->copydata
+       source->
+
+Parameter
+Name            Type      Value
+enddate                   add dynamic content-->parameters
+                                                penddate-->click->we get expn
+                          @pipeline().parameters.penddate
+startdate                 add dynamic content-->parameters
+                                                penddate-->click->we get expn
+                          @pipeline().parameters.pstartdate
+
+--------------------------------------------
+sink---->dataset-->New-->search: data lake
+         Name:ds_mystoragelake401_outputcsv
+         Filepath---->browse--->outputcsv
+         import schema-->connectionstore-->ok
+
+----------------------------------------------
+Now i will create a tumbling window trigger
+
+Add trigger--->New/edit--->
+
+Choose trigger--->New
+
+Name :trigger5
+
+Type:Tumbling window
+
+Start Date (UTC)*:7/1/2024, 12:07:18 AM
+Recurrence*Every 24 Hour(s)
+Specify an end date
+End On (UTC)* :7/6/2024, 5:12:18 pm
+
+start trigger on creation-->yes
+
+ok
+It asks for penddate:
+            pstartdate:
+
+1stJul-------2ndjul-------3rdjul--------4thjul--------5thjul--------6thjul
+starttime    endtime
+<---window1-------->
+             starttime----->endtime
+             <------window2------>
+                          <startime-------endtime>
+                               window3 ................................window5
+
+to get the values in the window interval--->
+2functions--->we use
+  
+
+It asks for penddate:@trigger().outputs.windowEndtime
+          pstartdate:@trigger().outputs.windowstarttime
+
+ok
+publish all
+
+Goto monitor--->when the publish completes
+                refresh
+                5 pipelines will be running--->5 csv files with default names
+                                               are created
+==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

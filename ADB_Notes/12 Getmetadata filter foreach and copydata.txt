@@ -1,0 +1,246 @@
+
+Activities:
+----------
+1.Get metadata---->for metadata information
+2.filter --------->filtering based on condition
+3.foreach--------->looping activity
+
+Task:source container has 5 files
+     copy all files which starts with "adf" into target container
+
+source datalake--->mystoragelake5001-->container-->source--->upload 5 files
+                                                             adf file1.txt
+                                                             adf file2.txt
+                                                             adf file3.txt
+                                                             emp.txt
+                                                             sample.txt
+
+Target datalake--->mystoragelake501-->container-->Target
+
+Process: Get metadata--->o/p---->5files--->i/p--->Filter--->o/p-->
+                                                        3files starting with adf
+
+filter-->o/p 3 files given as i/p--->foreach(has subactivity-->copy data)
+                                      this copy data iterates for 3 times
+                                      and 3 files copied to destination
+
+==============================================================================
+Step 2: Linked services are already available
+            source--->ls_mystoragelake5001
+            target--->ls_mystoragelake502
+
+==============================================================================
+Step 3: Datasets
+        for source-->create a new dataset-->ds_mystoragelake5001_source
+                                                   (here emp not required)
+
+                    here while selecting filepath-->select source
+                                                    dont select any files
+                    First row as header--->True-->ok
+                    publish all--->publish    
+        for target-->dataset already available-->ds_mystoragelake501_target
+
+==============================================================================
+step 4: Creating pipeline
+        Name :Getmetadata_filter_foreach_copydata
+
+        search :Get Metadata--->drag it --->Get Metadata
+                                            Settings:
+                                   Dataset:source->ds_mystoragelake5001_source
+                                   Fieldlist: +New
+                                              Attribute : child Items
+
+       validate
+       Debug--->Activity by activty, we can track
+                Get Metadata1  ->(input)  ->(output)   ---->Succeeded
+
+                click that o/p:
+
+"childItems": [
+		{
+			"name": "adf file1.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file2.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file3.txt",
+			"type": "File"
+		},
+		{
+			"name": "emp.txt",
+			"type": "File"
+		},
+		{
+			"name": "sample1.txt",
+			"type": "File"
+		}
+	],
+
+the above is a JSON--->here 5 items are there
+                       in each item-->we have 2 fields-->name and type
+                       but i want only name---->item().name
+
+item().name---->To get each filename
+The output-->childItems, I will pass to next activity i.e filter as i/p
+===============================================================================
+filter:
+       I want to filter those items(files) starting with adf
+
+     search :filter---->drag it---->filter
+
+                       Getmetada--------->Filter
+
+Here 2 activities
+if i run debug--->both activities executes parallely
+                  here you wont get error for 1st Activity
+                       you will get error for 2nd Activity
+                       bcoz for filter i/p should be  Get Metadata
+           
+
+click filter---->
+       Name :filter1
+       Description
+
+       Settings:
+          items(input): add dynamic content-->select->GetMetadata Activty childItems 
+                                       @activity('Get Metadata1').output.childItems
+                                       ok
+         condition: add dynamic content--->Functions-->string functions--->
+                                           select--->startswith
+                                           @startswith(item().name,'adf')
+
+                                           item has 2 fields->name and type
+                                           but i want only name->so item().name
+
+                                       1st item().name is--->adf file1.txt
+                                       2nd       "     is--->adf file2.txt
+                                        "
+                                        "
+        validate
+        debug------>Activity by Activity we can track
+        Get Metadata--->o/p is 5files
+        filter -------->o/p is 3files(which are starting with adf)
+        o/p of filter:
+        "Value": [
+		{
+			"name": "adf file1.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file2.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file3.txt",
+			"type": "File"
+		}
+	]
+
+===============================================================================
+foreach activity: It is a looping activity
+----------------  under loop activity, we need to give atleast one other activity
+                  as the sub-activity
+                 In foreach activity, i will take copy data activity as the
+                 sub-Activity
+                 This copydata activity will be iterated for each file
+
+          search :foreach
+                     
+                     Getmetadata---->filter----->foreach
+
+          click foreach
+                settings
+                 sequential   True
+                 Items(input):add dynamic content--->select filter output value
+                              i.e @activity('Filter1').output.Value
+
+         
+                 Activities:
+                     foreach            edit-->click
+ 
+                     searh: copy data--->drag it
+                            source: ds_storagelake1001_source
+                            wild card file path
+                            source-->add dynamic content-->foreach1 current item
+                                     @item().name
+                            sink:ds_storagelake502_target
+                            ok
+                publish all---->publish
+
+                validate
+                debug----->Getmetadta
+                           filter
+                           foreach--->copy data
+                                      copy data
+                                      copy data  ------->succeeded
+ 
+              check the o/p in the target conatiner
+
+              mystoragelake502-->contianer-->target-->here we see 3 files
+                                                      with default names
+
+
+
+
+
+
+
+
+                 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

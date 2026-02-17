@@ -1,0 +1,184 @@
+
+
+Loading Multiple Excel sheets to multiple tables
+---------------------------------------------
+source--->mystoragelake401--->details.xlsx->has 3 sheets-->1)emp
+                                                           2)customer
+                                                           3)product
+//emp
+Eid	Ename	Salary	dno	city
+101	Miller	10000	11	Hyd
+102	Blake	20000	12	Pune
+103	Sony	30000	11	hyd
+104	Sita	40000	12	pune
+105	John	50000	13	hyd
+//customer
+cid 	cname	bal
+101	Ajay	90000
+102	Rahul	80000
+103	Amith	70000
+//product
+pid 	pname	price
+101	LG	40000
+102	Samsung	30000
+103	Sony	20000
+
+target-->Azsql---->auto create 3tables from Excel sheets
+==============================================================================
+Linked services are already available
+
+==============================================================================
+Goto Azure sql
+
+create table dbo.SheetNames(id int identity(1,1),SheetName varchar(100));
+
+identity(1,1) means
+id column starts with 1 and increments by 1
+You can also use -ve value to decrement
+
+insert into dbo.SheetNames values('emp'),('customer'),('product');
+
+
+select * from dbo.SheetNames;
+o/p:
+id  SheetName
+1   emp
+2   customer
+3   product
+
+==============================================================================
+pipeline--->New pipeline--->multipleExcelsheets
+            search :lookup --->to get list of Excel sheets
+                    settings:
+                    dataset : new--->azuresql--->
+Name :ds_dynamicexcelsheets
+Linked service :ls_azsqldb401
+
+Table name
+Import schema :None
+
+Goback to pipeline-->lookup
+                     source:ds_dynamicexcelsheets
+                     first row :No --->I want all then rows
+                     user query: select Query
+                     Query: select SheetName from dbo.SheetNames;
+
+To see the result of query--->Execute once in azure sql
+select SheetName from dbo.SheetNames;
+output:
+SheetName
+emp
+customer
+product
+==============================================================================
+as there are multiple sheets-->To iterate i go with foreach
+
+search :foreach
+        settings
+        sequential :yes
+        items(input) :add dynamic content--->select--> lookup1 Value array
+        Expn: @activity('Lookup1').output.value  
+      
+        Activities:
+             foreach    edit
+                        search :copydata
+                        source dataset:
+        dataset--->Newdataset--->search:data lake-->excel-->
+                 
+Name:ds_mystoragelake_detailsexcel
+Linked service:ls_mystoragelake401
+
+File path:source/Directory/details.xlsx
+Worksheet mode:Name
+Sheet name*
+First row as header:yes
+Import schema:None
+ok
+parameters--->New--->Name         Type        Default value
+                     dssheetname  Strin g
+Goto connections-->                     
+Worksheet mode:Name
+Sheet name : add dynamic content--->parameters
+                                    dssheetname--->click this-->we get Expn
+                                    Expn:@dataset().dssheetname
+
+-------------------------------------------------------------------------------
+Go back to pipeline-->copy data
+Source dataset:ds_mystoragelake_detailsexcel
+Dataset properties
+Name      	Value    	Type
+dssheetname     Add Dynamic content--->	Expn:@item().SheetName
+
+sink:
+dataset--->New dataset-->search:azure sql
+Name :ds_azsql_Excelsheets
+Linked service:ls_azsqldb401
+
+Table name:
+Import schema:None
+-----------------------------------
+Goback to pipeline-->copydata
+                       sink1
+                       dataset:ds_azsql_Excelsheets--->open
+
+parameters :New---> Name          Type
+                    dsTableName   string
+
+Goto connection-->
+Table :dbo.add dynamic content--->parameters
+                                  dsTableName--->click-->we get Expn
+                                  Expn:@dataset().dsTableName
+
+sink:
+Sink dataset:ds_azsql_Excelsheets
+Dataset properties
+Name	          Value	Type
+dsTableName---->add dynamic content--->foreach1 current item-->
+                                       expn:@item().SheetName'
+                                       means table should be created with sheetname
+
+Table option :  auto create
+
+publish
+validate
+debug
+
+check the output--->we see 3 tables-->emp,customer,product
+
+Tommorrow i more excel sheet(orders) got added to details.xlsx 
+
+insert into dbo.SheetNames values('orders')
+
+
+
+
+
+               
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+

@@ -1,0 +1,167 @@
+
+
+ADF Versions and differences:
+-----------------------------
+2 versions
+
+1.ADF Version1 --->Not supported now
+2.ADF Version2
+
+ADF Version1 : It is used to perform EL Only,but not ETL
+                there were no transformations
+                No built-in Transformation facilities
+ -To perform Transformations,some additional services required such as
+
+1.ADLA (Azure Datalake Analytics)
+       -It is available only for ADLS Gen1
+                                 (Azure Data LAke Storage)
+      ADLS has 2 versions---->Gen1 and Gen2
+                              only for Gen1--->ADLA is available
+
+      within this GEn1----->Analytics are done by USQL
+      USQL--->Unified Structured Query LAnguage
+              It is not equivalent to basic sql
+              USQL is totally different
+-----------------------------------------------------------------------------
+2. HDInsights service------>(Hadoop Insights)
+        Hadoop is a distributed computing cluster
+        Same BigData Hadoop Framework in Azure cloud is called as HDInsights
+
+       -Here we have a DAtaflow language called APACHE PIG
+        Dataflow means sequence collection of pipes
+        -At each pipe diff transformations will happen
+
+       At pipe1----->Data Extraction
+       At pipe2----->Data Cleaning
+       At pipe3----->Creating new fields
+       At pipe4----->filtering
+       At pipe5----->Aggregations
+       At pipe6----->writing output to Target
+
+  Using Pig, these dataflows are written and Transformations are performed
+
+------------------------------------------------------------------------------
+3) Azure Functions
+      -we need to write Azure Functions
+       These Azure Functions are complex to implement
+
+4)Azure Databricks
+
+5)Stored Procedures
+
+pre-requisite in version1
+-To Tranaformations, you should be a devloper first
+ that too you shpuld be expert in scripting i.e
+   using USQL (or)
+          pig (or)      --->by hadoop developer
+         Azure Functions--->very complec code--->by .net devloper
+         Azure Databricks--->by spark developer
+         Stored procedures-->by sql developer
+
+ If your Company wants Pigscripts--->you need to know PigScripting
+ Pig can process all varieties of data
+ Pig can eat anything and process it--->Thats why the name pig
+ whatever the dirty data--->Pig can process
+
+ If no ADF Version2,if still ADF version1, then the pre-requisite is
+ you should be a developer--->having knowledge of Spark,pig,Stored Procedures etc
+
+ This is the problem with ADF Version1 
+ 
+ Afterwords Microsoft recognized this problem and decided to make a ETL tool
+ with zero coding
+
+That's why they launched a new version--->ADF Version2
+
+Previously Informatica---->80%--->drag and drop
+                           20%--->writing sql scripts
+
+ADF Version2 is a zero-coding ETL--->But the style is ELT
+
+Bcoz of Zero-coding-->Today it is hero
+
+-we like ADF not based not its  performance,based on its zero-coding
+
+-Even Multiple TB's of data to process, it can process at a great speed.
+
+===============================================================================
+Features of ADF Version2
+ 1)All the features of Version1
+        +
+ 2)Dataflows
+        +
+ 3)Power Query
+
+ for Dataflows,previously in version1---->what was used--->PIG
+ writing pig scripts---->for complex dataflows
+ (or) alternatively----->used Databricks
+
+But in version2,as a ADF Developer,we no need to use PigScripts,
+databricks,Azure Function or stored Procedures
+
+we can perform Complex TRansformations by using dataflows,without writing
+any code,just drag and drop
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,113 @@
+
+
+working with Parquet file
+-------------------------
+
+-Parquet is a column-oriented binary file format
+
+-The parquet is highly efficient for types of large-scale queries
+
+-The parquet uses compressions like snappy,gzip
+ default is snappy
+
+-parquet is a file format designed to support fast data processing for
+ complex data
+
+characteristics of parquet file:
+--------------------------------
+
+1.Columnar-based:
+
+    row based storage
+   ex: CSV ,Avro
+
+ 101 Ajay 50000 Pune
+ 102 Rahul 60000 Hyd  ------->row-based
+ 103 Blake 70000 chennai
+
+
+same data in column-based
+ 101    102   103
+ Ajay   Rahul Blake-------->Column-based
+ 50000  60000 70000
+ Pune   Hyd   Chennai
+
+---------------------------------------------------------
+2)Open-source :Parquet is free to use and open source under the
+               Apache hadoop license and is mostly compatible with most
+               hadoop processing frameworks
+
+ -----------------------------------------------------------------------------
+Advantages of parquet columnar storage(why should you use it)
+
+1.Compression:
+  Taking a file and making it smaller
+  in parquet, compression is performed column by column and
+  different encoding can be used for compressing integer and string data
+
+parquet data can be compressed using the following encoding methods
+
+1.Dictionary encoding: This is enabled automatically and dynamically for data
+
+2.Bit packing:storage of integers is usually done with 32 or 64bits per integer
+
+3.Run Length Encoding(RLE):when small value occurs multiple times,
+                           only single value is stored  along with its no of
+                           occurences
+
+------------------------------------------------------------------------------
+Loading a parquet file from datalake to Azure sql table
+
+source--->mystoragelake401--->source---->titanic.parquet
+target--->azuresql ---->table---->autocreated
+
+=============================================================================
+source dataset--->new dataset--->search :data lake--->parquet--->continue
+                  Dataset Name:ds_parquet1
+                  file path: browse--->source-->titanic.parquet
+                  import schema :connection store
+                  ok
+
+target dataset: new dataset---->search : azure sql ---->continue
+                Name:ds_azsql_parquettable
+                tablename:
+                import schema:none
+                ok
+===============================================================================
+pipeline--->new pipeline---->Name:parquetloading
+
+            copy data--->
+             source--->ds_parquet1
+             sink----->ds_azsql_parquettable--->open 
+                                                table name: dbo.parquettable
+             Table option :auto create
+
+             mapping :import schema
+
+             Validate---->
+
+             debug------->
+             
+             Goto Azsql---->Select * from dbo.parquettable
+
+
+                     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,198 @@
+
+
+Conditional split Transformation:
+---------------------------------
+-Conditional split transformation routes or diverts data row to diff targets
+
+-Conditional split splits data based on single condition or multiple conditions
+
+-Previously, distribution happened based on files
+       here,distribution based on data
+mystoragelake---->source---->products.csv
+
+
+
+//products.csv
+pid ,pname,price,branch
+p01,LG,10000,Hyd
+p02,Samsung,20000,Pune
+p03,Sony,30000,Hyd
+p04,LG,14000,Pune
+P05,Samsung,18000,Hyd
+p06,Sony,13000,Pune
+p07,LG,17000,Hyd
+p08,Samsung,14000,pune
+p09,Sony,30000,hyd
+
+split the data based on product--->here 3 products--->into 3 splits
+
+so here 3 target containers
+mystoragelake------------>lgg
+                          samsung
+                          sony
+
+===============================================================================
+Linked service is available
+
+datasets--->we need to create--->
+source--->1 dataset---->ds_mystoragelake401_souce_products
+Target--->3 datasets--->1)ds_lg
+                        2)ds_samsung
+                        3)ds_sony
+
+==============================================================================
+dataflow--->new dataflow---->Name: dataflow_csplit
+
+add_source--->source1
+              ds_mystoragelake401_source_products
+
+ source1---->Conditionalsplit
+             settings
+             split on -->1)first matching condition
+
+                          -data is split on the first matching condition 
+                           just like elif
+
+
+                         2)all matching conditions
+                           -data is split on all the matching conditions
+                        sal>20k------>sink1
+                        sal>40k------>sink2
+                        sal>60k------->sink3
+                        default------->sink4
+                       if sal is 10k------->which sink--->default
+                                 20k------->   "    "        "
+                     ex:Ravi sal is 70k--->he falls in which sink-->
+                                            Ravi is in all the 3 sinks
+                 -------------------------------------------------------------       
+                   in 1st matching condition--->if 1st condition is True
+                                                it wont check with 2nd condition
+                here if 2st condition is false, it checks with 2nd condition  
+                                          if True,it wont check 3rd condition
+               if all conditions are false then it will go with default
+
+
+          split condition:
+                   stream name      condition
+                +  lg               equals(pname, 'LG')---->save and finish
+                +  samsung          equals(pname,'Samsung')  "
+                +  Sony             equals(pname,'Sony') 
+                   existing         Rows that do not meet any condition will
+                                    use this output stream
+
+                              ----->lg
+  we get in this way   source1----->Samsung
+                              ----->Song
+==============================================================================
+
+  lg----->sink1
+          ds_lg
+
+  Samsung----->sink2
+               ds_Samsung
+
+  Sony------->sink3
+              ds_sony
+
+==============================================================================
+pipeline---->New pipeline--->Name:csplitpipeline
+                             drag--->dataflow_csplit--->validdate-->debug
+
+
+==============================================================================
+Ex:2
+source------->mystoragelake401-->source--->emp.txt
+                              -->target1
+                              -->target2
+                              -->target3
+//emp.txt
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+
+
+Task--->if sal>10000 and sal<=20000 ----------->sink1
+        if sal>20000 and sal<=40000------------>sink2
+        default-------------------------------->sink3
+         
+1st matching condition------>rec by rec it checks
+             for 1st rec--->if sal is 15k------->it wont check the 2nd condition
+
+===============================================================================
+Linked service already avaialble
+
+=============================================================================
+Datasets---->4 datasets----->source--->ds_mystoragelake_source_emp
+                             target--->ds_target1
+                                       ds_target2
+                                       ds_target3
+
+=============================================================================
+dataflow--->name:dataflow_csplit2
+
+            add_source---->source1
+                           ds_mystoragelake_source_emp
+                           projection---->change sal to integer type
+
+           source1------>conditional split
+                        select--->1st matching condition
+
+              split condition
+                     split1-------->sal>10000 && sal<=20000
+                     split2-------->sal>20000 && sal<=40000
+                     default------->non-matching
+                                    (here we get--->sal<=10000
+                                      and sals> 40000)
+
+          source1----->split1----->sink1
+                                   ds_target1
+                       split2----->sink2
+                                   ds_target2
+                       default----->sink3
+                                   ds_target3
+
+ pipeline---->Name: cplit2_pipeline
+                   drag--->dataflow_csplit2
+
+                    publish
+                    validate
+                    debug
+
+           o/p----->target1----->part file--->102,Blake,20000,m,12
+                    target2----->partfile---->103,Sony,30000,f,11
+                                              104,Sita,40000,f,12
+                    target3(default)->partfile 101,Miller,10000,m,11
+                                               105,John,50000,m,13
+
+=============================================================================
+  now select----->All matching condition
+
+ o/p----->target1----->part file--->102,Blake,20000,m,12
+          target2----->partfile---->103,Sony,30000,f,11
+                                    104,Sita,40000,f,12
+          target3(default)->partfile 101,Miller,10000,m,11
+                                     105,John,50000,m,13
+                                     102,Blake,20000,m,12
+                                     103,Sony,30000,f,11
+                                     104,Sita,40000,f,12
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

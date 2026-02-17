@@ -1,0 +1,136 @@
+
+Lookup Transformation:
+----------------------
+Lookup Transformation is similar to left outer join
+
+left outer join :matchings+unmatched recs of leftside
+
+All rows from the primary stream will exist in the o/p with additional cols
+from the lookup upstream
+
+ex: 
+ left table      Right table
+total data of lefttable+matched data of Right table
+
+==============================================================================
+mystoragelake401--->containers----> input--->emps.txt
+                                         --->dept.txt
+                              ---->target
+
+=============================================================================
+//emps.txt
+
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+106,Amar,60000,m,17
+107,James,70000,m,18
+108,Anand,80000,m,19
+
+//dept.txt
+dno,dname,city
+11,mrkt,pune
+12,sales,hyd
+13,accounts,pune
+14,HR,hyd
+15,finance,pune
+16,admin,hyd
+
+===============================================================================
+linked service is available--->ls_mystoragelake401
+
+==============================================================================
+datasets are available-->source-->1)ds_mystorageklake401_source_emps
+                                  2)ds_mystoragelake401_source_dept
+                      -->target-->1)ds_mystoragelake401_target
+
+===============================================================================
+dataflow--->New dataflow---->Name:dataflow_lookup
+
+           add_source-->source1(emps)
+                        dataset---->ds_mystorageklake401_source_emps
+                        optimize--->single partition
+                        projection-->change eid,dno,sal--->to int
+                        data ppreview
+           add_source-->source2(dept)
+                        dataset---->ds_mystoragelake401_source_dept
+                        optimize--->single partition
+                        projection-->change dno--->to int
+                        data ppreview
+
+         source1(emps)------>lookup1
+
+                            Primary stream* :emps
+                            Lookup stream*  :dept
+                            Math on :any row
+
+ Lookup conditions *
+Left: emps's column		Right: dept's column	
+dno                ===             dno
+
+optimize--->single partition
+
+inspect---->
+
+datapreview--->5cols+3cols=8cols
+
+=============================================================================
+lookup1------>sink1
+              dataset: ds_mystoragelake401_target
+              I want to create a file
+              settings:
+              Clear the folder--->yes
+              File name option*-->default
+              
+              optimize :single partition
+              datapreview--->5+2 =7cols
+
+==============================================================================
+pipeline: new pipeline--->look1pipeline
+          drag-->dataflow--->dataflow_lookup
+
+          validate
+          debug-------->
+          o/p---------->part-000000
+
+o/p:
+eid,ename,sal,gend,dno,dname,city
+101,Miller,10000,m,11,mrkt,pune
+102,Blake,20000,m,12,sales,hyd
+103,Sony,30000,f,11,mrkt,pune
+104,Sita,40000,f,12,sales,hyd
+105,John,50000,m,13,accounts,pune
+106,Amar,60000,m,17,,
+107,James,70000,m,18,,
+108,Anand,80000,m,19,,
+===============================================================================
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+
+
+
+
+
+
+
+
+
+
+           

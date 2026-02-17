@@ -1,0 +1,169 @@
+
+practical implementation of union T/R:
+--------------------------------------
+
+union : merging or combining  datasets
+        Target can be a file or a table
+        table can be Azure sql/synapse
+
+mystoragelake501----->source--->emp1.txt
+                                emp2.txt
+//emp1.txt
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+
+//emp2.txt
+eid,ename,sal,gend,dno
+201,Rohith,10000,m,11
+202,Amar,20000,m,12
+203,priya,30000,f,11
+204,sony,40000,f,12
+205,John,50000,m,13
+
+If you are merging mutiple files for a purpose means --->
+the merging files should have same schema(same colnames and datatype and 
+same no of columns)
+
+Now merging the above 2 files
+
+Target--->mydatalake501--->unionres
+
+==============================================================================
+Linked service: already available
+                ls_mystoragelake5001
+
+==============================================================================
+Datasets: 3 datasets to be created
+
+source-->2 datasets to be created
+            ds_mystoragelake5001_source_emp1
+            ds_mystorgelake5001-source_emp2
+
+Target-->1 dataset tobe created
+          ds_mystorgaelake101_unionres
+
+==============================================================================
+shape of the pipeline: 2 files emp1.txt,emp2.txt----merge---->unionres
+---------------------
+
+source1--------
+ (emp1)        |----->Union  ---------------->sink
+               |      union with:source2      (unionres)
+source2--------
+ (emp2)
+
+debug---->Data Transportation will happen
+==============================================================================
+at the backend--->spark cluster will be executed
+Spark always writes data into partitions
+if the i/p file is big--->it may have multiple partitions
+                          in o/p,we get more partition files
+
+spark behaviour---->writes into partitions only
+===============================================================================
+pipeline creation:
+-----------------
+pipeline--->new pipeline---->Name : unionexample
+
+ dataflow---->drag------>dataflow1
+                         settings:
+                           dataflow : +New
+
+                           add source-->add source             
+                            source1
+                            settings
+                             output stream name: branch1
+                              dataset :ds_mystoragelake5001_source_emp1
+
+                              allow schema drift
+                            Enable dataflow debug
+                            Test connection--->successfull
+==============================================================================
+add source--->source2
+              source2
+              settings
+                             output stream name: branch2
+                              dataset :ds_mystoragelake5001_emp2
+
+                              allow schema drift
+==============================================================================
+ brach1(source1)--->+----->select union T/R
+
+ click union1
+ o/p stream :union1
+ incoming stream-->branch1(source1)
+ union by 1)name-->based on cols   i.e eid--->eid
+                                       sal--->sal merging happens
+          2)posiiton---> 1st col--->1st col
+                         2nd col--->2nd col---->based on position
+
+ union with :source2  +       
+              click this +--->To add more brances
+                         +--->will be seen only if you have 3 or more branches
+
+==============================================================================
+ union+ ----->select sink T/R
+
+ sink1
+ o/p stream name: sink1
+ incoming stream: union1
+
+ dataset: ds_mystoragelake5001_unionres
+
+==============================================================================
+Running the pipeline:
+  comeback to intial pipeline-->unionexample
+validate
+debug
+check the output in the target---->unionres--->we see partition files in it
+                                               as spark writes into partitions
+
+To get o/p in a single file--->enable single partiton--->so that u get a single
+file
+for that change the sink settings
+
+
+sink settings
+Filename option :o/p to single file
+output to single file :empres
+it gives an option--->enable single partition-->yes
+
+debug---->we see single file in the o/p--->empres---->edit--->2 branches data
+                                                             will be displayed
+
+This should be used for smaller datasets
+It flow takes lot of time
+performance will be low
+==============================================================================
+
+ex:2
+       datalake------->azure sql
+        2files                      
+
+                             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

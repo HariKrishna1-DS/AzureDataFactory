@@ -1,0 +1,75 @@
+
+
+Creating Resources under REsource Group
+
+Creating a Datalake Storage Account Resource
+--------------------------------------------
+Goto Resource group--->
+
+ADF7pmgroup--->+create--->search: Storage Account--->
+              select Storage Account(microsoft)---->Create
+
+Subscription :free trial
+Resource group :ADF7pmgroup
+Create new
+Instance details
+Storage account name :mystoragelake7001
+Region :East US
+Deploy to an Azure Extended Zone
+Primary service :Azure datalake or Azure Blob storage
+Performance
+
+Standard: --->default -->for heavy and fixed data volumes
+Premium: ---->for high availability of data volumes
+
+Redundancy : GRS -->Geo Reduntant storage
+
+Review+Create
+Create--->Creates DAtalake storage account
+
+Datalake Advantages: 1.Unlimited Data storage
+                     2.all varieties of data storage
+
+=============================================================================
+Creating a container within the datalake storage account
+
+click-->mystoragelake7001--->Data storage--->containers--->
+        +container---->Name :mycontainer--->create
+
+
+under container--->we can keep your folders or files
+
+within the container,we can copy our files
+1)if local files(within the system)--->we can directly upload
+                                       we have upload/browse option
+                                       here no need of ADF
+
+2)from other databsse to container, if you want to dump data, at that
+  time ADF is required.
+
+ mycontainer-->click--->upload-->browse a file--->sample1.txt-->upload
+
+if file is local--->we can upload
+if file is remote-->use adf
+
+
+
+==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,367 @@
+
+
+
+Task : Copy file from source container to target container within the 
+       same Storage Account
+
+Step 1: Creating ADLS(Azure Datalake Storage) storage account and
+        within that create source and target containers
+
+    Goto-->Mystoragelake7001-->Data Storage-->Containers-->+create-->source
+
+          +upload---->emp.txt
+
+//emp.txt
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13             
+
+         container--->+create--->target
+==============================================================================
+Step 2: Creating /integration  Run-time
+        source--->Datalake-->which is Azure realted
+        so Auto IR-->No need to create 
+
+==============================================================================
+Step 3: Creating Linked service
+        Goto adfelt7001--->launch ADF Studio
+
+        for creating linked service
+        Goto manage---->linked services--->New-->search :data lake--->Continue
+                                means u r creating linked service for datalake
+
+
+Name* b:ls_mystoragelake7001
+
+Connect via integration runtime* :AutoResolveIntegrationRuntim
+Azure subscription :Azure vijay1
+Storage account name :mystoragelake7001
+
+Test Connection :To linked service
+
+Create-->Linked service gets created
+
+
+Now Test the connection--->whether linked service is perfectly connecting
+                           to mystorage accoiunt or not
+
+Test the connection--->Click-->ls_mystoragelake7001-->Test Connection
+
+It gets failed
+
+First understand the error-->click on more--->to see the error msg
+
+error msg is-->
+
+ 'This endpoint does not support BlobStorageEvents or SoftDelete.
+ Please disable these account features if you would like to use this endpoint.
+
+click-->cancel
+
+To solve this error--->Go back to storage account
+
+click---->mystoragelake7001--->we see preview--->Basic info
+
+under Blob service--->we see
+
+Blob softdelete     :Enabled(7 days)
+Container softdelete:Enabled(7 days)
+
+disable  both and save
+
+As per the Azure Documentation--->saying that
+
+for the datalake storage accounts,if softdelete option is enabled then
+linked service connection will be failed
+
+so for that microsoft suggested is--->disable them
+
+Goto ADF-->
+
+Test the connection--->Click-->ls_mystoragelake7001-->Test Connection-->Success
+==============================================================================
+Purpose of softdelete:
+
+ -anytime if container missed or file got missed or deleted
+
+  microsoft internally maintains the copy of that particular object or file
+  or container for 7days
+  for this additional charges will be applied
+
+  wantedly or some big object got missed then you can request microsoft to
+  recover that file
+
+  but in ADF, as it is not allowing to create linked service
+  am disabling, but suddenly on file got missed-->What is the olution
+
+  create one seperate storage account only for the backups and what all the 
+  files, you feel are important-->keep in backups as seperate account
+
+==============================================================================
+
+soft delete and storage blob data contributor:
+----------------------------------------------
+At the time of creating linked service for datalake, we get error-->
+
+so disable softdelete, ur liked service will be created
+
+This is ok at the training part
+
+but at job role--->Even if you disable the softdelete-->You will get 
+other errors
+
+here why we are not getting error---->bcoz
+
+who is the owner of the account--->I am the owner,I am the labour
+
+so here am not getting the permission issue, all permissions are with me
+
+But as Developer/admin-->You are not the owner of the account-->
+you are one of the user of that account-->There is a concept called
+Azure Active Directory(AAD)
+
+with the help of Azure Active Directory, azure admins will create users
+
+Suppose  your organization is ICICI
+
+ICICI will have only one production account
+
+under that production account, the azure admins will create different users
+using Azure Active Directory(AAD)
+
+I am one user
+you are one user
+
+but user to user different permissions,roles and access will be assigned
+
+open-->mystoragelake7001--->ACCESS CONTROL--->
+                            basic admins wont have access to this
+                            only Azure security admins will have access
+                            The Security admins will create the users
+                             "     "        "  will assign the roles to the users
+
+
+Access control--->+add--->Add role assignement
+                          To whon the role to be assigned
+                          click members
+                          members--->select members 
+
+click--->Role--->search:storage blob contributor
+
+Problem:Even soft delete options disabled, there is a chance to get errors,
+         while creating linked services for datalake
+
+solution: Assign the Role "Storage blob data contributor" to the user
+
+you are assigning role fro which storage account
+
+mystoragelake7001--->This role is only for this account
+                     not for other datalake storage accounts ex:mystoragelake7002
+
+If you are the owner, you no need to assign urself
+
+So for every storage account--->we need to assign the role
+
+ex:
+
+I am the owner,I am creating you as the user
+
+I need to assign this role, then only you can work with this storage account
+
+Suppose you step in as a ADF Developer
+
+
+They have given you a pipeline--->which is already created
+you got linked sevice error
+
+Fisrt what you need to check
+
+check for the option--->soft delete
+
+as a developer---->you cannot disable
+
+Your admin is not a ADF Expert, put a request to him to diasble softdelete
+
+he disabled it--->but still you got error
+
+ask him for-->Storage blob data contributor-->
+
+after this is assigned-->it works
+
+for some datalakes,at source level you wont find issue(you are just reading it)
+but at target-level yo may get error-->bcoz you wont have write permission
+
+so ask for contributor access
+
+Contributor has the access to read,write and delete also
+
+so security admins will design these
+
+from AAD(Azure Active Directory)-->They will be assigning diff roles
+
+==============================================================================
+here the source and target, both are  same datalake->so one linked service
+
+------------------------------------------------------------------------------
+step 4:Create dataset for source file-->emp.txt
+
+Goto Author--->
+
+   Datasets--->New dataset-->search:datalake->continue->
+                            delimited text->continue
+
+Name :ds_mystororagelake7001_source_emp
+Linked service:ls_mystoragelake7001
+
+File path :browse--->source/emp.txt-->select this
+
+First row as header-->yes
+Import schema :From connection/store
+
+ok
+
+Dataset created successfully, but not yet published
+
+here before the dataset,we see dot symbol which says still it is
+not published
+
+To save permanently--->we need to publish
+
+without publish--->If you log out-->ur dataset wil be deleted
+
+say-->Publish all---->publish
+
+=============================================================================
+step 5: Creating dataset for target container
+
+ Datasets--->New dataset-->search:datalake->continue->
+                            delimited text->continue
+
+Name :ds_mystororagelake7001_target
+Linked service:ls_mystoragelake7001
+
+File path :browse--->target-->select this
+
+First row as header-->yes
+Import schema :From connection/store
+
+ok
+
+publish all--->publish
+
+Now i have 2 datasets and a linked service ready
+Now all pre-requisites are ready for creating pipeline
+===============================================================================
+step 6: Creating pipeline
+        pipeline-->set of activities
+
+                  here we have only one activity--->copy activity
+
+       what is copy activity??
+         -Reading data from the source and writing into target
+       
+    pipeline--->New pipeline--->Name: copy_source_target
+
+    copy activity is present within move and transform
+
+    copy data--->drag it--->copy data
+                            source:ds_mystororagelake7001_source_emp
+                            sink:  ds_mystororagelake7001_target
+
+publish all--->publish
+
+=================================================================================
+step 7: Run the pipeline
+
+     here we have 2 options--->1)Debug
+                               2)add trigger
+
+     click--->add trigger--->trigger now--->Run succeeded
+
+    Now go and check the o/p
+
+    Goto mystoragelake7001--->Target--->we see the file-->emp.txt
+                                                          copied successfully
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

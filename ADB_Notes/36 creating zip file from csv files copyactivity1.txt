@@ -1,0 +1,58 @@
+
+
+Create a zip file using copy activity
+
+souce--->mystoragelake---->input1--->emp1.csv
+                                     emp2.csv
+                          target---->emps.zip
+
+//emp1.csv
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+//emp2.csv
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+
+==============================================================================
+linked services already available
+
+==============================================================================
+datasets---->2 datasets------>1)ds_emp1_csv---->delimted text
+                              2)ds_emp2_csv---->   "       "
+                              3)ds_emps_target
+#============================================================================
+
+pipeline--->Name:zippipeline
+            copy data--->drag
+
+            source:ds_emp1_csv
+            wild card file path :  input/    /*.csv
+
+            sink: ds_mystoragelakr401_target
+                  open this 
+                  file path :target/   /emps.zip
+                  compression type: zipdeflate(.zip)
+
+             publishall
+             debug
+                    o/p----->emps.zip
+==============================================================================
+
+            
+            
+
+
+
+
+
+
+
+
+
+

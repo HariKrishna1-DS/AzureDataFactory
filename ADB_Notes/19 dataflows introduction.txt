@@ -1,0 +1,278 @@
+
+
+
+In ADF version2,we got 
+  1)dataflows
+  2)Power query
+
+DAtaflows:
+      -Dataflow is an activity
+      -within dataflows,we have transformations
+      -Each transformation performs some operation on data
+       i.e data operations such as---->reading,
+                                       filtering
+                                       sorting
+                                       merging
+                                       Aggregation etc
+
+
+upto now,we worked with files, but we didnt work with data of files
+
+but by using dataflows,we work with data
+
+This dataflows not only available in ADF but also available in other ETL tools
+
+what is the diff b/w other dataflows and ADF dataflows
+
+
+-here dataflows will be converted into databricks jobs
+ while creating there are no databricks jobs
+ but at run-time there are converted into databricks job
+
+ databricks----->is a spark cluster
+                 (spark jobs will be executed)
+
+spark main features--->1.in-memory computation
+                       2.mpp(massive parallel process)
+
+
+spark to execute in massive parallel process--->it requires a cluster
+
+cluster is provided by databricks
+
+same databricks in Azure is called Azure Databricks
+
+what is the diff b/w general databricks and azure databricks
+
+in Azure databricks, it can integrate with
+      -Azure Datalake file
+      -Azure sql
+      -Azure cosmosdb
+
+-so azure databricks is compatible with all data storages of azure
+
+same databricks available with AWS--->we call as AWS Databricks
+
+==============================================================================
+Dataflow transformations:
+
+source----->seperate transformation
+sink------->seperate transformation
+
+
+Copy activity
+can we perform Transformations using copy activity???
+
+in copy activity--->we need to configure 2 datasets--->source,sink
+
+without configuring these two,your copy activity is not complete
+
+-here, just reading from one point and writing to other point
+ but between these there is no transformations
+----------------------------------------------------------------------------
+
+source transformation:
+
+source--->if i apply a transformation,it is reading data
+          -next am applying filter
+          -next add a new field
+          -next perform aggregation
+-finally write into sink
+
+here b/w source and sink, many transformations are there--->here you are
+able to perform transformations
+
+Differnt dataflow transformations are:
+--------------------------------------
+1.source Transformation
+2.sink         "       
+3.union        "
+4.exists       "
+5.select       "
+6.generate new field
+7.join         "
+8.derived column
+9.filter(where)
+10.lookup      "
+
+1)Source Transformation:---->To read data from azure/non-azure storages
+                             reading from azure storages is faster
+       supportable storage sources are
+           -azure datalake gen2
+           -azure sql database
+           -azure synapse
+           -azure cosmos              
+           -non-azure sources with the help of IR(self-hosted)
+            (here writing and exporting takes more time)
+            so instead write custimized spark code-->configuring/increasing
+            parallel process--->it takes less time
+ 
+           as it takes more time
+           solution is:
+           1.use copy activity from non-azure to azure datalake
+           2.apply dataflow transformations
+
+==============================================================================
+2)sink transformation: To write data outputs into target storage systems
+
+    supportable storage targets are
+           -azure datalake gen2
+           -azure sql database
+           -azure synapse
+           -azure cosmos              
+           -non-azure sources with the help of IR(self-hosted)-->slow
+            solution:
+            1.use copy activity for non-azure to azure datalake
+            2.apply dataflow transformations
+            3.take the sink as datalake
+            4.use copy activity from datalake to non-azure storages
+
+ between source and sink,we need to perform column mapping
+ -we have auto-column mapping also--->but the problem is
+
+i have file1--->in source
+1st row--->eid,ename,sal
+2nd row--->101,Ajay,50000
+.
+.
+
+sink :in azure sql table
+      i have table like this
+      ecode,ename,income
+
+here if i perform automapping---->then
+always automapping wants to perform/map
+eid to eid, but there is no eid in the target
+sal to sal,  "    "      no sal field in the target -->here mapping wont happen
+
+ex:2
+      in i/p---->i have 3 fields
+      in sink--->i have 4 fields
+      some schema diff--->here definitely we need to configure mapping
+
+while configuring source----->no need to specify mapping
+
+but while configuring sink-->we need to specify mapping
+
+==============================================================================
+dataflow is an activity
+               within the activity---->many transformations
+               in that the 1st transformation will be--->Source Transformation
+                       the last transformation will be--->sink transformation
+
+source tranaformation--->to configure i/p datasets
+                         even multiple sources can be configured
+                         ex: join--->we have 2 sources to be joined
+
+sink Transformation : To configure output datasets
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,119 @@
+
+unpivot Tranformation:
+---------------------
+opposite to pivot Transformation
+
+pivot==>converting row values into col values
+
+unpivot=>converting col values into Row values
+
+pivot===> Row------> columns
+unpivot==>column---> Rows
+
+ex: 
+  ex:     city         id  dno   hyd  pune
+          hyd   pivot   1  11    2    1    unpivot
+          pune=======>  2  12    1    2===========>o/p we get how many rows-6
+          hyd           3  13    1    1
+          pune
+          hyd
+
+o/p:  unpivot output
+      id   dno   city  emp_count
+       1    11   hyd      2
+       1    11   pune     1
+       2    12   hyd      1
+       2    12   pune     2
+       3    13   hyd      1
+       3    13   pune     1
+
+==============================================================================
+
+source--->mystoragelake--->source-->sample.csv
+                       --->target
+
+//sample.csv
+id	dno	dept	       hyd	pune
+1	11	Datascientist	2	1
+2	12	DataEngineer	1	2
+3	13	DataAnalyst	1	1
+
+
+datasets--->2 datasets-->1)ds_mystoragelake401_samplecsv
+                         2)ds_mystoragelake401_target
+
+==============================================================================
+dataflow--->new dataflow---->Name:dataflow_unpivot
+              
+         add_source---->source1
+                        ds_mystoragelake401_samplecsv
+                        datapreview
+          
+         source1----->unpivot
+
+                  1.un Group by--> keep existing cols as it is 
+                     eid
+                     dno
+                     dept     
+                  2.unpivot key---->new col to create 
+                                    unpivot colname :city
+                                    unpivot coltype :string                                                                                            i.e pivot on which col)
+
+                  3.un pivoted columns (aggregate)
+                      column name :emp_count
+                             type :string
+
+         Data Preview--->
+o/p
+     id   dno   city    emp_count   we also get dept col also
+       1    11   hyd      2
+       1    11   pune     1
+       2    12   hyd      1
+       2    12   pune     2
+       3    13   hyd      1
+       3    13   pune     1
+
+
+optimize--->select single partion===>so that in single file, it will be saved
+
+---------------------------------------------
+
+unpivot1--------->sink1
+                ds_mystoragelake401_target
+                clear the folder-->yes
+
+--------------------------------------------
+pipeline :Name--->pivotpipeline1
+                  drag--->dataflow_pivot
+                  publish all
+                  validate
+                  debug
+o/p:
+id	dno	dept	city	emp_count
+1	11	Datascientist	hyd	2
+1	11	Datascientist	pune	1
+2	12	DataEngineer	hyd	1
+2	12	DataEngineer	pune	2
+3	13	DataAnalyst	hyd	1
+3	13	DataAnalyst	pune	1
+
+we got 6 rows 
+here hyd , pune(cols)----->rows(city)
+
+
+
+
+
+
+
+
+       
+
+      
+      
+
+
+
+
+
+============================================================================

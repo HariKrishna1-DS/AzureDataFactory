@@ -1,0 +1,132 @@
+
+Creating a Resource for ADF:
+---------------------------
+
+ADF7pmgroup
+      -create--->search:Data factory--->select--->Data Factory-->Create
+ 
+Subscription      : Azure vijay1
+Resource group    : ADF7pmgroup
+Create new
+Instance details
+Name              : ADFelt7001
+Region            : East US
+Version           : V2 
+Review+Create---->create
+
+=============================================================================================
+To build pipeline, we require resources
+ex: in some cases, source may be datalake
+    "   "      " , source may be azure sql
+    some other pipelines---->datalake will be the target
+      "    "        "   ---->same datalke will be the source
+
+==============================================================================
+working with ADF:
+----------------
+our instance name :ADFelt7001--->Click--->it opens--->Azure DataFactory studio
+
+we get the work environment
+
+we see mainly
+
+1.Author(pencil symbol)-->It is the developer tool
+
+2.Monitor
+
+3.Manage(Briefcase symbol) :It is for creating admin related objects
+                            like linked services/Integration Runtime
+                            Generally these are created by admins
+
+ur main goal is------>to create a pipeline
+                      in pipeline--->activities will be provided
+                      activities are interacting with data objects
+                      To interact with data object--->we require datasets
+
+                      But dataset-->pre-requisite---->Linked service
+
+                      I want to create a linked service means
+                      i need to goto----->manage
+
+
+ex: I have one table in Azure sql, i want to dump into datalake
+     now---->we need to create datasets
+             for that linked service is required
+             for linked service--->intgration runtime reqired
+
+             What IR?
+      source-->Azure sql is part  of Azure--->so Auto IR-->no need to create
+      about target--->datalake->part of Azure    "   "          "       "
+
+      so directly linked services for source and target
+
+==============================================================================
+1)author( pencil symbol) :Our main developer tool
+   -Here we can create a new
+                         1)pipeline-->here the main work is pipeline defining
+                           we can also create a pipeline under specific folder
+
+                         2)dataset ->To create pipeline and to read data and
+                                     to write data--->we require datasets
+                         3)dataflow-->in adf version2, we have concept of Dataflows
+                            Dataflow-->performing powerfull transformations
+                            that too backend ecxecution--->Databricks
+                         4)Power Query --->Previously available for MS-Excel
+                 ex: If you are not comfortable with dataflow kindof activities
+                     go for power query--->For performing transformation
+
+                Power Query was not available in ADF Version1
+ 
+
+              Some clients directly use dataflows
+              Some clients directly use Power Query
+              Some clients without using both-->They are performing core activities
+
+
+==============================================================================
+monitor:
+-------
+  If you submit a pipeline---->To check what is the status of pipeline
+  then go for monitor
+  
+  ex: In Pipelines,we have many activities
+
+      Suppose ur pipeline has 10 activities that are running already
+      To know the curent status--->whic activity is running-->Go for monitor
+
+      -Sometimes some Activity will be failed
+
+       which activity is failed--->we can check
+
+
+      
+   
+
+       
+
+
+
+
+
+
+
+
+
+
+                            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+               

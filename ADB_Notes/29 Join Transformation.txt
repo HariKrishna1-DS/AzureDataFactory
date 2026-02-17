@@ -1,0 +1,203 @@
+
+Join Transformation:
+-------------------
+
+Types of merging: 2 types
+1.Vertical merging: merging of rows vertically
+  ex: union
+  Condition for vertical merging: Schema of the merging datasets should be same
+
+2.Horizontal merging :Merging of cols horizontally
+  ex:joins
+  Condition for join :Atleast one column should be common in both datasets
+
+==============================================================================
+Types of joins:3 types
+1.Inner join
+2.Outer Join------>3types---->1)Left outer join
+                              2)Right outer join
+                              3)full outer join
+3.cross Join
+
+A=1   B=1
+  2     2
+  3     3
+  4     7
+  5     8
+  6     9
+
+1)Inner join: only matching records (intersection)
+o/p:
+     (1,1)
+     (2,2)
+     (3,3)
+
+2)Left outer join: Matchings+unmatched of left side
+                             i.e total presence of left side
+
+o/p:
+     (1,1)
+     (2,2)
+     (3,3)
+     (4, )
+     (5, )
+     (6, )
+
+3)Right outer join: Matchings+unmatched of Right side
+                             i.e total presence of Right side
+
+o/p:
+     (1,1)
+     (2,2)
+     (3,3)
+     ( ,7)
+     ( ,8)
+     ( ,9)
+
+4)Full outer join: Matchings+unmatched of left side
+                             i.e total presence of left side
+                            +unmatched of Right side
+                             i.e total presence of Right side
+
+o/p:
+     (1,1)
+     (2,2)
+     (3,3)
+     (4, )
+     (5, )
+     (6, )
+     ( ,7)
+     ( ,8)
+     ( ,9)
+
+5)cross join :Each element of leftside merges with each element of right side
+
+A=(a,b,c)
+B=(1,2,3)
+
+A X B=(a,1),(a,2),(a,3),
+      (b,1),(b,2),(b,3)
+      (c,1),(c,2),(c,3)
+==============================================================================
+
+source--->mystoragelake----source---->emps.txt
+                                      dept.txt
+                           target
+
+//emps.txt
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+106,Amar,60000,m,17
+107,James,70000,m,18
+108,Anand,80000,m,19
+
+//dept.txt
+dno,dname,city
+11,mrkt,pune
+12,sales,hyd
+13,accounts,pune
+14,HR,hyd
+15,finance,pune
+16,admin,hyd
+
+==============================================================================
+linked services are available
+
+datasets-->2 datasets ---->ds_mystoragelake401_source_emps
+                           ds_mystoragelake401_source_dept
+
+==============================================================================
+Dataflow--->new dataflow--->dataflow_join
+
+ add_source--->source1(emp)
+                ds_....source_emps
+
+  add_source-->source2(dept)
+               ds...source_dept
+
+----------------------------
+source1---------->join
+                  leftstream :emp
+                  rightstream:dept
+                  join type-------->inner
+                  joining condition--->   left emp     right dept
+                                               dno == dno
+
+-------------------------------------------------------------------------------
+join1 ----->sink1
+            ds_mstoragelake101_target
+            clear folder--->yes
+
+------------------------------------------------------------------------------
+pipeline---->New pipeline---->drag--->dataflow_join--->validata----debug
+
+
+o/p:
+eid,ename,sal,gend,dno,dname,city
+101,Miller,10000,m,11,mrkt,pune
+102,Blake,20000,m,12,sales,hyd
+103,Sony,30000,f,11,mrkt,pune
+104,Sita,40000,f,12,sales,hyd
+105,John,50000,m,13,accounts,pune
+
+==============================================================================
+Target as --->azuresql---->only the sink will change
+
+
+create table empdept(eid int,ename char(20),sal int,gend char(10),dno int,dname char(10),city char(10));
+
+create dataset--->ds_myazsql_empdept
+
+open---joinpipeline---->in that sink1 settings
+                                ds_myazsql_empdept
+
+publish all---->publish
+
+validate
+
+debug---->
+
+select * from [dbo].[empdept];
+
+o/p:
+
+eid,ename,sal,gend,dno,dname,city
+101,Miller,10000,m,11,mrkt,pune
+102,Blake,20000,m,12,sales,hyd
+103,Sony,30000,f,11,mrkt,pune
+104,Sita,40000,f,12,sales,hyd
+105,John,50000,m,13,accounts,pune
+==============================================================================
+
+
+
+
+
+
+
+               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

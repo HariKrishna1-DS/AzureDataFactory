@@ -1,0 +1,187 @@
+
+select Transformation:
+----------------------
+
+select Transformation performs the following
+1)renaming the source cols as per target
+2)Dropping the source cols 
+3)re-odering the source cols as per the target
+
+if target table has diff no of cols
+if source table has diff no of cols
+
+if automapping is enabled , the data loading will be failed into 
+associated cols
+
+ex: source--->id,name
+    sink----->eid,ename
+    rename source cols----->to eid and ename as per target
+
+2)drop the columns
+  
+  whenever some data is trying to get loaded into target
+
+  ur adf dataflows are trying to push all the data into target table
+  but target table is not having all the cols
+
+ex: source-->eid,ename,sal
+    sink--->eid,ename
+    at the time of loading drop the col---<>sal
+    here eid--->eid
+         ename-->ename mapping will happen
+
+3)re-ordering the cols
+   source--->eid,ename,dno,sal,gend
+   sink----->eid,ename,sal,gend,dno
+
+here we need to re-order the cols of source--->as per target
+
+ex:To merge 2 datasets
+   union of source1,source2------->into target(sink)
+
+   source1--->eid,ename
+   source2--->ename,eid
+
+ you need to re-order any one source and then perform union:
+
+Limitations of Select T/R: you cannot generate new columns or fields
+
+To generate new columns or fields,we have another Transformation called
+"derived column"transformation
+
+drop--->if 30 cols in source and we want only 20cols in target-->drop the remianing cols
+
+
+===============================================================================
+Select Transformation:
+
+Task: renaming, dropping and reorder the columns
+
+source1---------select T/R----------->sink1
+               renaming
+               dropping 
+               reordering
+
+source--->mystoragelake501---->source--->emp.txt 
+                          ---->target
+
+//emp.txt
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+
+Tasks:
+renaming-->eid---->empcode
+           sal---->income
+
+drop----->gend column
+
+reorder--->ename,empcode,dno,income
+           
+=============================================================================
+linked service already available----->ls_mystoragelake501
+
+=============================================================================
+datasets also already avaialble
+       source---> ds_mystoragelake501_source_emp
+       sink----->ds_mystoragelake501_target
+
+=============================================================================
+create dataflow and take it as an activity into the pipeline
+
+  source1------->select------>sink1
+   (emp)                       
+
+dataflow--->new dataflow---->Name:dataflow_select
+
+add source--->source1
+              dataset: ds_mystoragelake501_source_emp
+
+
+source1----->select
+
+select settings
+
+Incoming stream* source1
+Options Skip duplicate input columns-->yes
+
+        Skip duplicate output columns-->yes
+
+     source columns
+                eid----------->empcode(rename)
+                ename--------->ename
+                sal----------->income(rename)
+                gender-------->gender-->(select and delete)
+                dno----------->dno
+
+           and now re-order by dragging up  down
+              ename
+              empcode
+              dno
+              income
+==============================================================================
+
+select------->sink1
+
+sink1 settings
+dataset: ds_mydtoragelake501_target
+
+==============================================================================
+pipeline--->newpipeline---->Name:selectTR
+
+
+Dataflow--->drag
+
+            dataflow-->select--->dataflow_select
+
+validate
+
+debug-->
+
+check the o/p------->target--->
+o/p:
+ename,empcode,dno,income
+Miller,101,11,10000
+Blake,102,12,20000
+Sony,103,11,30000
+Sita,104,12,40000
+John,105,13,50000
+
+==============================================================================
+
+
+
+
+
+
+
+              
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

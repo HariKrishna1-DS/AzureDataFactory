@@ -1,0 +1,70 @@
+
+Aggregate Transformation:
+------------------------
+
+By using Aggregate Transformation,
+we can perform------>Groupings and Aggregations
+
+Aggregations---->sum,avg,max,min,count
+
+source---->mystoragelake--->source--->emp.txt
+                            target
+
+Tasks:
+       1)dno wise-------->sum(sal)--->totalrevenue
+       2)dno wise-------->avg(sal)
+       3)dno wise-------->max(sal)
+       4)dno wise-------->min(sal)
+       5)dno wise-------->count(sal)
+===============================================================================
+linked services and datasets are available
+
+process flow=====> source1--->aggregate1----->sink1
+===============================================================================
+dataflow-------->dataflow_aggregate
+
+      source1
+      ds_.....emp
+      projection--->eid,sal,dno--->change to integer
+
+      source1----->aggregate1
+                    
+                   select groupby
+                          column--->dno
+                           aggregate
+
+                     Add Column-->totsal---->sum(sal)
+                     Add Column-->avgsal---->avg(sal)
+                      Add Column-->maxsal---->max(sal)
+                       Add Column-->minsal---->min(sal)
+                        Add Column-->count---->count(sal)--->save and finish
+
+                 aggregate1---->sink1
+                                ds_mystoragelake_target
+                                clear folder---->yes
+
+==============================================================================
+ pipeline------>aggregatepipeline--->drag--->dataflow_aggregate-->debug
+
+o/p:
+dno,totsal,avgsal,maxsal,minsal,count
+12,60000,30000.0,40000,20000,2
+13,50000,50000.0,50000,50000,1
+11,40000,20000.0,30000,10000,2
+==============================================================================
+
+
+
+                 
+
+
+
+
+
+
+  
+
+
+
+
+

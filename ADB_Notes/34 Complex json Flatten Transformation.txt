@@ -1,0 +1,177 @@
+
+
+Flatten Transformation: for flatenning the elements
+
+ex:  eid   ename  qual           age  city
+     101   Ajay  [BTech,MTech]   30    Hyd
+     102   Rahul [BSC,MSC,Mtech] 35    pune
+
+Flatten this ---->
+o/p: eid   ename  qual  age  city
+     101   Ajay   BTech 30    Hyd
+     101   Ajay   MTech 30    Hyd
+     102   Rahul   BSC  35    Pune
+     102   Rahul   MSC  35    Pune
+     102   Rahul   MTech35    Pune
+
+===============================================================================
+working with Complex Json file
+
+//customers.json
+
+{
+ "cid"     : "C001",
+ "cname"   : "Ajay",
+ "accounts": [
+               {"bankname":"SBI","balance":70000},
+               {"bankname":"HDFC","balance":90000},
+               {"bankname":"ICICI","balance":80000}
+             ],
+  "policies":[
+               {
+                 "policyname":"SBILIFE",
+                  "Term"     :"15yrs",
+                  "sumassured":5000000,
+                   "Nominees":[
+                                {"Name":"Rahul"},
+                                {"Name":"Amar"}
+                              ]
+               },
+               {
+                 "policyname":"HDFCLIFE",
+                  "Term"     :"12yrs",
+                  "sumassured":2000000,
+                   "Nominees":[
+                                {"Name":"Rohith"},
+                                {"Name":"Anand"}
+                              ]
+               }
+               ],
+              "address":{"city":"hyd","state":"Telangana"}
+
+              }
+
+===============================================================================
+source--->   mystoragelake--->source--->customers.json
+Target--->   Azuresqltable-->customers--->auto create
+
+==============================================================================
+Linked services already available
+
+=============================================================================
+Datasets--->2 datasets---->1)ds_customers_json
+                           2)ds_azsql_customers-->dont provide tablename
+
+==============================================================================
+pipeline--->new pipeline---->jsonpipeline5
+            dataflow---->drag
+                  dataflow---->New
+                  add_source---->source1
+                                 ds_customers_json
+                                 preview data
+                ( eventhough 1 rec in the source-->it takes as array)
+                Error:
+          at Source 'source1': Malformed records are detected in schema 
+          inference. Parse Mode: FAILFAST. It could be because of a wrong 
+          selection in document form to parse json file(s). Please try a 
+different 'Document form' (Single document/Document per line/Array of documents) 
+          on the json source.
+
+solution---->goto source options
+             json settings--->
+                        Doument form: select--->Array of documnets 
+
+             Datapreview
+
+
+    source1------->flatten1
+
+                  unroll by---{} --->If Json element has array then only
+                                     flatten works
+                                     what is the array type on which you would
+                                     like to flatten
+                                here only array types will be in enabled mode
+                                remaining all will be in disabled mode
+                
+                  unroll by  {accounts[]} +--->click
+                             {policies[]} +--->click
+                             {Nominees[]} 
+
+  
+
+
+Add mapping
+
+cid--------->cid
+cname------->cname
+accounts.bankname------>bank(+add mapping-->fixed mapping-->select acoount->bankaname)
+accounts.balance------->balance
+policies.policyname---->policy
+policies.Term----------->Term
+policies.sumassured----->sumassured
+policies.Nominees.Name--->Nominee
+address.city------------->city
+address.state------------>state
+
+inspect------->displays the cols--->10
+Datapreview--->
+cross join happens here-->3accts x 2policies x  2nominees=12recs
+
+flatten1------>sink1
+               ds_azsql_customers
+               open--->ds_azsql_customers
+                        table name: dbo.customers
+
+                publish all
+                validate
+                debug----->
+                           selec * from [dbo].[customers]
+
+
+
+
+
+
+
+
+
+
+
+
+               
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

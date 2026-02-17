@@ -1,0 +1,55 @@
+
+
+Filter Transformation: Filtering rows based on condition
+
+Task1: Filter those emps whose sal > 20000
+
+TAsk2 :Filter those emps who belongs to dno12 and sal>20000
+
+mystoragelake------->source---->emp.txt
+                     target
+
+linked services are available
+
+Datasets are available
+
+==============================================================================
+Dataflow--->new dataflow--->Name: dataflow_filter
+            add source--->Source1
+                          dataset:ds_storagelake_source_emp
+            since all columns are of string datatype
+            in projection--->change the sal column to int type
+
+            source1--->filter1
+                       filter on-->sal>2000 ---->save and finish
+
+ filter1--->sink1
+            dataset:ds_storagelake_target
+            settings:
+            clear folder-->yes
+=============================================================================
+
+pipeline--->New pipeline ----->filterpipeline
+
+
+              dataflow--->drag
+                          dataflow--->select--> dataflow_filter
+
+              publish
+              debug
+              check in the o/p--->part file--->we see emps sal>20000
+
+=============================================================================
+TAsk2 :Filter those emps who belongs to dno12 and sal>20000                                  
+                       
+in source--> in projection change--->dno datatype to integer
+
+filter on :dno ==11 && sal > 20000
+
+validate
+debug
+==============================================================================
+
+
+
+

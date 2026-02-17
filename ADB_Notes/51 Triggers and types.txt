@@ -1,0 +1,116 @@
+
+Triggers:
+--------
+-Triggers for automatic execution of pipelines
+     -scheduled-based
+      event-based
+
+Types of triggers:
+
+1.Schedule trigger
+
+2.Tumbling window trigger
+
+3)Event Based Trigger
+    -storage Event Trigger
+    -custom Event Trigger
+4)manual trigger
+
+-------------------------------
+1)Schedule trigger:
+   -Executes pipeline on a specified schedule
+    i.e hourly,daily,weekly,monthly
+    ex: here we can set the start and end dates
+         30th of each month
+         1st of each month
+   Schedule trigger are built with " many to many" relationship
+   -one data pipeline can be run by multiple schedule triggers
+    one schedule trigger can run several Data pipelines
+
+------------------------------------------------------------------------------
+
+2)Tumbling Window:
+    Executing pipeline at a specified time interval
+    mostly usefull for copying or migrating historical data
+    ex: Copying data from database to Datalake regularly
+         you want to keep it in seperate files or folders for every hour/day
+
+   -To implement this, you have to set a tumbling window trigger for 
+    every 1 hour(or) every 24 hrs
+
+  -The tumbling window trigger sends the start and end times for 
+   each time window to the database and also returns all the data
+   b/w those periods
+  -Finally the data for each hour or day can be saved in its own file or folder
+
+  -here we can provide the past date and time
+------------------------------------------------------------------------------
+
+3)Event Trigger: Executes a pipeline in response to events such as
+                i)data loading/arriving in the storage account
+               ii)file being added or modified
+              iii)file being deleted
+
+ Event Trigger: 2 types
+    1)Storage Event Trigger
+    2)Custom Event trigger
+
+4)manual trigger:Allows manual execution of a pipeline by a user
+                 Add trigger--->trigger now
+
+==============================================================================
+Differences 
+
+Aspect    Scheduled trigger   Tumbling window    Storage Event    CustomEvent
+=============================================================================
+1.Defining runs at pre-defined  runs at regular   responds to      respond to  
+          time interval or     intervals with    events in        custom events
+          schedule             no overlaps or    storage          
+                               gaps             ex:filecreation
+                                               or deletion
+------------------------------------------------------------------------------
+2.Usecase Regularly scheduled  Time-based that  Triggering actions  Responding
+          tasks such as backups must occur at   based on changes    to specific
+          or data processing    fixed intervals in storage such as  custom events
+                               ex:aggregations  new files or updates like user
+                                                                     actions or
+                                                                    application 
+                                                                    events
+-------------------------------------------------------------------------------
+3.Time-based yes,based on a        yes, with non-   Not a direct      Not a direct
+             set time or frequency overlapping      time dependency   time dependency
+             (daily,hourly,weekly)                 it is event-based  
+                                              based on storage actions                                                                
+-------------------------------------------------------------------------------
+4.Overlap    yes allowed         Not allowed        Not applicable   Not applicable
+  allowed    runs as per the     fixed with no     runs at storage
+            defined schedule     overlap.          event occurs
+            regardless of        Each window
+            previous run state   must be completed
+                                before the next start
+------------------------------------------------------------------------------
+5.Dependency  No                  Dependent on the  Dependant          Dependant on 
+              Runs independently  completion of     on storage events  custom events
+              of data or events   previous window
+
+------------------------------------------------------------------------------
+6 examples   Running a backup      process data     Trigger pipeline   Trigger an event 
+             every night at 2 AM   every hour       when a file is     when a user places
+             -seding daily sales   ex: Aggreagate   uploaded           a order
+             report                log entries every or start a process  or Respond to an 
+                                   10mins            on file deletion    IOT device message
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+

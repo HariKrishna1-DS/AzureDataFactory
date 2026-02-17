@@ -1,0 +1,69 @@
+
+
+Self-hosted Integration Runtime
+-------------------------------
+
+iF the source is non-azure, if it is on-premise database then go for
+self-hosted IR
+
+Manage--->Integration Runtimes--->New--->Azure self-hosted--->
+
+                self-hosted--->Name:integrationruntime1---->create
+
+       it will say--->Download and install integration Runtime
+                      here we see 2 keys--->key1 and key2
+                      we need to copy any one key from this
+
+       -->Microsoft Integration Runtime--->Download--->
+ 
+This software we need to install on on-premise machine
+
+Download--->Select one version-->next-->next-->finish
+    It will ask for register: copy and paste any key1 or key 2--->Register
+
+   Integration Runtime node name:Systemname(automatically it takes)
+   displays the list of Integration Runtimes:
+                   select---->integrationrntime1
+                   finish
+This can be installed in windows machine only
+For linux and mac--->we have Azcopy
+
+Azcopy is an  API which can be used in any operating system like windows,mac,
+linux
+
+Azcopy is used for copying files from local machine to datalake
+
+==============================================================================
+Generally for auto integration run-time i.e from azure to azure
+what is the compute(cluster) taken-->2 nodes to 256nodes
+
+for self-hosted, what is the compute power taken-->nothing but ur 
+local system comute power
+
+Goto-->task manager--->performance--->cpu
+                                      memory
+                                      etc
+                                     It uses this compute power
+
+=============================================================================
+aftering registering--->
+  click--->launch configuration manager--->sevice will start and running
+ Goto manage--->Integration runtime-->integrationruntime1-->refresh-->running
+
+During this process--->your system should not be in sleep/hibernate mode
+                      so goto control/power options/--->select balanced
+
+==============================================================================
+
+
+
+===============================================================================
+
+
+
+
+
+
+
+
+

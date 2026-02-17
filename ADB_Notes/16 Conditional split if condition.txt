@@ -1,0 +1,205 @@
+
+
+
+==============================================================================
+Conditional Split--->using if-condition Activity
+
+source-->mystoragelake5001--->container---->source--->has 7 files
+target-->mystoragelake502---->containerx---->all adf files
+                              containery--->all other files
+
+linked services are already available
+
+datasets are already available
+
+=============================================================================
+Process:
+
+ GetMetadata------------------------->foreach
+dataset:mystoragelake5001_source        i/p: @activity("Get Meatada1"),output.childItems
+Fiellist:New                              |
+         childItems                       |sub-Activity
+                                        If-condition --->executes 7times
+                                      expn:@startswith(item().name,'adf')
+                          (if there are 3 adf files)
+                          True---->copy data1(3 times)---->sink: containerx
+                          False---->copy data2(4 times)---->sink: containery
+Once you run the pipeline the data distribution will happens
+==============================================================================
+step 2: Linked services
+        source----->ls_mystoragelake5001
+        target----->ls_mystoragelake502
+
+=============================================================================
+Step 3: Datasets--->already available
+
+        source----->ds_mystoragelake5001_source
+
+        Target---->2 datasets--->ds_mystoragelake502_containerx
+                                 ds_mystoragelake502_containery
+
+=============================================================================
+Step 4 : Pipeline
+
+         New pipeline-------->Name :ifcondition_conditionalsplit_9am
+         search :Get Metadata
+                 Dataset :mystoragelake5001_source
+                 Fieldlist :New
+                            Argument :childitems
+
+         validate
+         debug---->
+         o/p---->7files
+----------------------------------------
+        search :foreach
+                         Getmetadata-------->foreach
+
+       click foreach
+              settings
+              sequential : True
+              items(input) : add dynamic content--->select Get Metadata1 ChildItems
+                             @activity('Get Metadata1').output.childItems
+
+             Activities:  atleast one sub-Activity--->i.e ifcondition
+
+                 foreach     Edit--->click
+                             search :ifcondition
+                             Activities
+                            Expression : add dynamic content--->functions-->
+                                          string function--->startswith()
+                                        @startswith(item().name,'adf')
+
+                           True------>edit
+                                     search :copydata
+                                     source :mystoragelake5001_source
+                                     I doesnt want to work with all the files
+                                     wild card filepath
+                                     source/add dynamic content
+                                            @item().name
+
+                                     sink:mydatalake502_containerx
+
+                          False------>edit
+                                     search :copydata
+                                     source :mystoragelake5001_source
+                                     I doesnt want to work with all the files
+                                     wild card filepath
+                                     source/add dynamic content
+                                            @item().name
+
+                                     sink:mydatalake502_containery
+                          publish_all ---->publish
+                          validate
+                          debug--->
+
+                         GetMetadata--->Executes 1 time-->o/p 7 files-->3 adf files
+                                                                        4 other files
+                         Foreach------->
+                               ifcondition---->7times
+                                  copydata1-->3 times->3files copied to->containerx
+                                  copydata2-->4 times->4files copied to containery
+
+        Check the o/p in the target--->containerx--->3 adf files
+                                       containery--->4 other files
+                                            
+==============================================================================
+
+Task: 
+
+     mydatalake5001---->container--->sales--->has files
+                                              20100125_sales.txt
+                                                .
+                                                .
+                                              20100221_products.txt
+                                              20100315_emps.txt
+
+   container has file since 2010 to till date
+   daily--->you may get 1 file,2 files or no files also
+
+Task : copy all sales files only of 2020,2021,2022,2023,2024 into target
+       use ifcondition
+       files------->endswith sales.txt
+       and
+       files------->startswith year
+
+
+                          
+
+                         
+
+
+                                     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                      
+
+
+
+
+
+
+
+
+
+                  
+
+
+
+

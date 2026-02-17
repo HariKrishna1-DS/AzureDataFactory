@@ -1,0 +1,109 @@
+
+
+Flatten Transformation:
+-----------------------
+Convert a Json file to a CSV file
+
+source---------->mystoragelake401------>source--->orders.json
+target---------->mystorahelake401------>target--->orders.csv-->to be created
+
+//orders.json
+{
+ "branch":"Hyderabad",
+ "products":[
+             {"product" :"LG","price":40000},
+             {"product" :"Samsung","price":50000},
+             {"product" :"Sony","price":30000}
+            ],
+ "orders":[
+           {
+             "order_id" : 10001,
+             "order_date": "25-02-2024",
+             "Order_qty" : "30Nos",
+             "order_address":[
+                              {"city" :"Mumbai","State":"Maharashtra"},
+                              {"city" :"pune","State":"Maharashtra"} 
+                             ]
+           },
+           {
+             "order_id" : 10002,
+             "order_date": "29-02-2024",
+             "Order_qty" : "60Nos",
+             "order_address":[
+                               {"city" :"Mumbai","State":"Mharashtra"},
+                               {"city" :"Hyd","State":"Telangana"} 
+                             ]
+           }
+          ]
+       }
+==============================================================================
+linked services are already available
+
+=============================================================================
+datasets ------> datasets ---->ds_mystoragelake_orders_json--->create
+                              2)ds_mystragelake401_target-->available 
+
+==============================================================================
+pipeline : Name: jsonpipeline7
+           dataflow---->drag
+           dataflow---->New
+           addsource--->Source1
+                        ds_mystoragelake_orders_json
+
+          sourceoptions
+          document form: array of documents
+
+ source1--->flatten1
+            unroll by --->products[] +
+            unroll by --->orders[]
+            unroll by --->orders.order_address
+
+branch------------------->branch
+products.product--------->product
+products.price----------->price
+orders.order_id----------->orderid
+orders.order_date--------->orderdate
+orders.Order_qty----------->Order_qty
+orders.order_address.city--->city
+orders.order_address.State-->State
+
+data preview----->8 columns and 12 rows
+
+flatten1------>sink1
+               ds_mystoragelake401_target
+               clear folder--->yes
+               file name option: output to a single file
+                     file name :orders.csv
+
+publish all
+validate
+debug
+check the o/p----->orders.csv
+Hyderabad	LG	40000	10001	25-02-2024	30Nos	Mumbai	Maharashtra
+Hyderabad	LG	40000	10001	25-02-2024	30Nos	pune	Maharashtra
+Hyderabad	LG	40000	10002	29-02-2024	60Nos	Mumbai	Mharashtra
+Hyderabad	LG	40000	10002	29-02-2024	60Nos	Hyd	Telangana
+Hyderabad	Samsung	50000	10001	25-02-2024	30Nos	Mumbai	Maharashtra
+Hyderabad	Samsung	50000	10001	25-02-2024	30Nos	pune	Maharashtra
+Hyderabad	Samsung	50000	10002	29-02-2024	60Nos	Mumbai	Mharashtra
+Hyderabad	Samsung	50000	10002	29-02-2024	60Nos	Hyd	Telangana
+Hyderabad	Sony	30000	10001	25-02-2024	30Nos	Mumbai	Maharashtra
+Hyderabad	Sony	30000	10001	25-02-2024	30Nos	pune	Maharashtra
+Hyderabad	Sony	30000	10002	29-02-2024	60Nos	Mumbai	Mharashtra
+Hyderabad	Sony	30000	10002	29-02-2024	60Nos	Hyd	Telangana
+
+         
+
+               
+
+
+
+
+
+
+
+
+
+
+
+    

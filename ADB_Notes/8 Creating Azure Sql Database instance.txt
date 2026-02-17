@@ -1,0 +1,40 @@
+
+
+4) Create instance for azure sql
+
+home--->search :sql databases--->create
+
+                 Databasename :myazsq7001
+                 server : create new----> Servername :mydbserver7001
+                                          region  : australia
+                                          Authentication : use sql authentication
+
+                                          server adminlogin:myuser7001
+                                                  password :........
+                                                     ok
+             Configure database--->  
+                                   Networking:
+                                   connectivity method : public
+ Allow Azure services and resources to access this server: yes
+             Add current client IP address               :yes
+             connection policy           :default
+
+            additional settings
+               use existing data   :sample
+
+              Review+ Create------->Create
+
+==============================================================================
+Now check all the resources in the resource group:
+
+resource groups
+           -testgroup
+                 -in this we see the resources
+                  1)adfelt7001  ---->Datafactory
+                  2)myaazsql7001---->sql database
+                  3)mydbserver7001-->sql server
+                  4)mystoragelake7001 -->Storage account
+ 
+
+===============================================================================
+

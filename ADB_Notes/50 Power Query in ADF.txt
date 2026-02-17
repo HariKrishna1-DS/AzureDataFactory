@@ -1,0 +1,66 @@
+
+PowerQuery if ADF:
+-----------------
+The Power Query activity allows to build and to execute data wrangling in
+data factory pipeline
+
+Data wrangling is a process of cleaning ,structuring and transforming raw data
+into usable format for analysis
+we also call as DAta munging,data blending or Data scrubbing
+
+PowerQuery in ADF is translated into spark and run on on-demand spark clusters
+so it is more scalable
+Power Query of ADF wont support all the features as PowerBI
+
+==============================================================================
+Copying data from source to destination, we can do it in 3 ways
+1.Copy data
+2.Dataflow
+3.Power Query
+
+==============================================================================
+Task: Load a text file data into Azure sql using power query
+
+source--->mystoragelake401--->source--->emp.txt
+Target--->Azure sql------->Table to be autocreated
+
+==============================================================================
+Linked services are already available
+
+=============================================================================
+Power Query---->New PowerQuery---->Name:powerquery1
+
+ Dataset--->Select
+             New---->Data lake--->supports 3 formats--->1.Delimitedtext
+                                                        2.Excel
+                                                        3.parquet
+Name:ds_mystoragelake401_emp
+Linked service:ls_mystoragelake401
+
+File path:browse---->source/emp.txt
+First row as header-->yes
+Import schema:From connection/store
+ok
+---------------------------------------------------------------------------
+
+pipeline: new pipeline
+         search :Power query
+ 
+        powerquery:-->select-->power query1
+                      sink--->
+                dataset--->New dataset--->Search :Azure sql
+                                          name:ds_azsql_tab1
+                  
+Linked service:ls_azsqldb401
+
+select--->New table
+Schema and table name:dbo.emptab1
+
+Here through power query,we are loading data from source to destination
+
+
+
+
+
+
+

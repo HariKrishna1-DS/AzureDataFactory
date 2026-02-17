@@ -1,0 +1,261 @@
+
+
+
+Multiple conditions in filter activity
+
+Task: Copy the files starting with 'adf' or 'spark' into the target
+
+source datalake-->mystoragelake5001-->container--source--->has 7 files
+                                                           adf file1.txt
+                                                           adf file2.txt
+                                                           adf file3.txt
+                                                           spark1.txt
+                                                           spark2.txt
+                                                           emp.txt
+                                                           sample1.txt
+Target datalake-->mystoragelake502-->container-->target
+
+==============================================================================
+step 2: linked services are already available
+        ls_storagelake5001
+        ls_storagelake502
+
+==============================================================================
+Step 3: Datasets are already available
+         source--->ds_mystoragelake5001_source
+         target--->ds_mystoragelake502_target
+
+==============================================================================
+Step 4: pipeline---->new pipeline---> Name: filter with multi conditions
+
+        search :GetMetdata --->drag it--->
+                Settings:
+                dataset : mystoragelake5001_source
+                Fieldlist:+New
+                           Arguments :Child Items
+                validate
+                 debug---> o/p  ---->7 files 
+
+o/p of Getmetadata
+
+"childItems": [
+		{
+			"name": "adf file1.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file2.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file3.txt",
+			"type": "File"
+		},
+		{
+			"name": "emp.txt",
+			"type": "File"
+		},
+		{
+			"name": "sample1.txt",
+			"type": "File"
+		},
+		{
+			"name": "spark1.txt",
+			"type": "File"
+		},
+		{
+			"name": "spark2.txt",
+			"type": "File"
+		}
+	],
+==============================================================================
+filter:   filename should start with 'adf' or 'spark'
+
+        search :filter
+                          Getmetadata---->filter
+
+                        click filter:
+                        settings:
+
+                   Items(input): add dynamic content-->select Getmetadata1 childItems
+                                 @activity('Get Metadata1').output.childItems
+                                 ok
+                   condition :add dynamic content---> select-->Functions
+                                                               Logical functions--or
+
+if ADF , or is not an operator, it is a function
+function starts with @
+now check with string function--->@startswith()
+now merge both-->
+
+    @or(
+     startswith(item().name,'adf'),
+     startswith(item().name,'spark')
+    )
+     For inner functions no need of @
+ok
+
+validate
+Debug
+
+Getmetadata--->o/p--->7files
+filter-------->o/p--->5 files
+
+o/p of filter is:
+
+"Value": [
+		{
+			"name": "adf file1.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file2.txt",
+			"type": "File"
+		},
+		{
+			"name": "adf file3.txt",
+			"type": "File"
+		},
+		{
+			"name": "spark1.txt",
+			"type": "File"
+		},
+		{
+			"name": "spark2.txt",
+			"type": "File"
+		}
+	]
+
+==============================================================================
+foreach:
+
+        search :foreach
+                     Getmetadata--->filter---->foreach
+
+                      click--->foreach
+
+                      settings
+                       sequential : True
+                       Items (input)--->add dynamic content-->filter1 Activity o/p
+                                        @activity('Filter1').output.Value
+                       ok
+                       
+                       Activities:
+                       foreach      Edit--->click
+                                    search :copy data--->drag
+                                    settings:
+                                    source :ds_mystoragelake5001_source
+                                    wild card file path
+                                    source-->add dynamic content---->
+                                             select-->foreach current item
+                                             @item().name
+                                    sink :ds_mystoragelake502_target
+
+                        Validate
+                         debug--->Get MEtadata
+                                  Filter
+                                  Foreach-->5 copydata activities will be executed
+                        check the output in the target
+                        mystoragelake502--->container-->target-->we see all 
+                                                   adf and spark related files
+
+==============================================================================
+and() function:
+---------------
+Task: file should start with "adf" and file should end with .txt
+
+@and(
+     startswith(item().name,'adf'),
+     endswith(item().name,'.txt')
+    )
+
+==============================================================================
+combination of and ,or functions
+
+emp.txt
+employee.csv
+abc.txt
+xyz.csv
+a1.csv
+
+Task:files should startswith e or a and extension should be CSV
+
+@and(
+     or(
+         startswith(item().name,'a'),
+         startswith(item().name,'e'),
+       ),
+         endswith(item().name,'csv')
+     )
+==============================================================================
+         
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                             
+                      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

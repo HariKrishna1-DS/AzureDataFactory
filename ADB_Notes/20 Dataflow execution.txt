@@ -1,0 +1,212 @@
+
+
+dataflow execution:
+
+Task: simple Dataflow activity in pipline
+
+source---->mystoragelake5001--->source---->emp.txt
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+
+target--->mystoragelake502---->sink502
+
+==============================================================================
+step 2:
+linked services are already available
+        --->ls_mystoragelake5001
+        --->ls_mystoragelake502
+
+=============================================================================
+step 3:
+datasets:
+     source dataset available--->ds_mystoragelake5001_source_emp
+     create target dataset--->ds_mystoragelake502_sink502
+
+==============================================================================
+for mapping columns---->we have
+                                1)manual mapping
+                                2)auto mapping-->here i will use this bcoz
+                                                 ur target is not a table
+
+==============================================================================
+step 4: creating pipeline
+        new pipeline---->name: dataflow_source_sink_9am
+
+        Activities---->we have 12
+                       dataflow available in----->move and transform
+
+                     dataflow---->drag
+                     settings
+                     Dataflow:  -->if already dataflow exists-->select it
+                                   +New---->click
+                                   click--->Add source---->source1
+                                                            with 0columns
+
+                                   outputstream name :source1
+                                   Description:
+                                   source type: Dataset     /  inline
+                                                (static data)  (streaming data)
+
+                                  Dataset : ds_mystoragelake5001_source_emp
+
+                                  Enable or Activate-->dataflow debug
+                                  This dataflow debug enables spark cluster
+                                  during execution, that's why it takes time
+                                  once the cluster is ready--->
+
+                            click--->test connection-->connection successfull 
+                         options  : Allow schema drift--->select
+
+                             ex: during Runtime, Transformation to Transformation
+                                 assume one more column got added
+                                 means change in schema--->it should allow
+                                 for that--->allow schema drift
+
+                        skipline count:0
+                                       in some input files-->first 3 lines
+                                       we see some comments describing the file
+                                       I want to skip these lines then
+                                       provide-->skipline count :3
+                                       here i doesnt want to skip any
+
+                       sampling : disable
+                                  if file data has 2 TB 
+                                  to check or test, no need of 2TB, take sample
+                                  and test--->for that enable sampling else
+                                  disable.
+
+                      till now source T/R is configured
+
+
+                     click source1 --->click open-->we see what dataset is selecte
+
+                    source1--->1st step Transformation
+
+                    for adding 2nd step transformation
+click source1--->we see +symbol--->It displays all the available Transformations
+
+select-->sink Transformation
+
+  now========> source1--------->sink1
+
+ click source1--->here we wont see any options for mapping
+                  but in the sink, we see the mapping option
+
+ Now configuring sink
+
+ click sink1
+           outputstreamname   :sink1
+           incoming streamname: source1
+           dataset :ds_storagelake502_sink502
+           skip line :0
+           allow schema dript
+           Test connection---->successfull
+
+ Settings:
+       clear the folder :   if any files already available---> in deleted
+       filename option  :default
+       quote all-->No  (if yes, it applies double quote for each field)
+       headers :am skipping
+       unmask: To whom you want to give the permissions
+                 group-->w
+                 others->w
+
+ mapping :
+          automapping-->enabled
+           i/p is a file
+           o/p we gave a container
+               as it is, all the header--->to be copied from source to target
+
+
+           if target is a table
+            diable---> auto mapping
+
+             eid----->eid
+             ename---->ename
+
+ optimize:  while loading data--->databricks cluster will be applying
+            partitioning techniques
+            bcoz of this partitions---->data will be loaded fast
+
+    partition option       
+           single partition------>without any partitions
+           set partitioning------>No of patitions : any no of partitions
+           here we have diff algorithms about these partitions and hashing
+           these we see in databricks
+           go with---->current partition
+
+   inspect---->Check whehter it is perfectly mapped or not
+  
+   here we have only 2 T/R's---->source T/R and Sink T/R
+
+   publish all---->publish
+
+   Go back to pipeline---->validate
+                            debug---->succeeded
+
+  check the o/p in mydatalake502--->sink502--->we see with default name
+                                               part-00000-->downlad-->open
+
+==============================================================================
+
+
+
+
+
+   
+
+
+
+   
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+                   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

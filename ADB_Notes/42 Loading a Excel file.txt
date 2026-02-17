@@ -1,0 +1,58 @@
+
+
+loading a Excel file
+--------------------
+
+mystoragelake401--->source---->emp.xlsx ---->eid,ename,Salary,dno,city
+                   target----->azsqltable--->exceltab1--->to be autocreated
+
+==============================================================================
+linked services are already available
+==============================================================================
+datasets--->2 datasets to be created-->
+
+           dataset--->Newdataset-->search:datalake--->continue
+                                   select--->excel--->continue
+                                   Name:ds_mystoragelake401_excel1
+                                   select the file path--->emp.xlsx
+                                   Worksheet mode :Name
+
+                                  Sheet name* :Sheet1
+
+                                  First row as header:yes
+                                 Import schema :From connection/store
+                                 ok
+
+                                  
+          dataset---->Newdataset-->Search:Azure sql
+                                   Name: ds_azsql_exceltab1
+                                   tablename-->None
+                                   import schema-->none
+
+==============================================================================
+pipelne--->new pipeline--->Name:excelpipeline1
+
+           copy data--->drag
+                        source--->ds_mystoragelake401_excel1
+                        sink---->ds_azsql_exceltab1  --->open
+                                                 tablename : dbo .exceltab1
+                                  table option :autocreate
+                        publish all
+                        validate
+                        debug---->
+           check the o/p--->
+                            Goto azsql
+                             select  * from [dbo].[exceltab1]
+                            we see the data
+
+
+                          
+                    
+
+     
+
+
+
+
+
+

@@ -1,0 +1,66 @@
+
+Scheduled Trigger:
+-----------------
+
+-commonly used for data ingestion,transformation,loading at regular intervals
+
+ex: A pipeline--->which has copy data
+                   copying from datalake to sql
+                   The pipeline should run every day/week
+
+           To execute this--->previously we used--->add trigger-->tigger now
+           This is manual trigger
+
+==============================================================================
+for scheduled trigger:
+----------------------
+ ex: a simple copy activity
+Go to the pipeline--->
+pipeline--->newpipeline--->Name:simple_copy_pipeline
+                           search :copydata
+                                   source:ds_mystoragelake402_source_emp
+                                   sink:ds_mystoragelake402_target
+                                   publish all
+
+add trigger-->New/Edit
+
+choose trigger--->New-->
+Name: trigger1
+
+type: scheduled trigger
+
+start date--->select date-->mm/dd/yy
+
+for every 2 mins
+
+select-->end date-->mm/dd/yy
+
+start trigger on creation
+
+ok
+
+ok
+publish all--->Compulsory
+
+check the o/p
+
+Goto---->Monitor
+  check----> pipeline  runs
+also check-->trigger runs
+
+To delete the trigger
+
+Goto--->manage-->triggers---->select trigger1---->delete
+
+
+
+
+
+
+
+
+
+
+
+
+

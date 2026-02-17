@@ -1,0 +1,175 @@
+
+
+
+Dataflow --->Datalake(source)------>Azure sql(sink)
+
+            This time my sink is database table
+
+=============================================================================
+source--->mydatalake501--->source--->emp.txt
+Target--->azuresql-------->table--->employee
+
+Goto azuresql
+
+Goto Query Editor
+       Create a table-->same schema as per the file
+ create table employee(eid int,ename char(20),sal int,gend char(10),dno int);
+ Run-->
+ tables--->dbo.employee
+
+==============================================================================
+Linked services:
+for source--->it is available--->ls_mystoragelake501
+
+Creating linked service for this azure sql table--->
+
+linked service--->New--->search :azure sql--->Name : ls_azsql501
+
+Auto IR
+
+server name-->mydbserver501
+
+database name-->azsql501
+
+user name:mydbuser501
+
+password:....
+
+Test connection---->successfull
+
+Create
+
+==============================================================================
+datasets:
+    source---->dataset already available
+
+    Target---> New dataset--->azure sql--->Name :ds_azsql501
+                                           provide linked service
+                                           table :dbo.employee 
+                                           create
+==============================================================================
+pipeline:
+
+new pieline-->name :dataflow_datalake_azuresql
+
+Move and Transform
+    Dataflow-------->drag
+
+   Dataflow1
+   Settings:
+    Dataflow  :New--->
+               click--->add source
+    output stream name:source1
+    source type : Dataset
+    dataset name: ds_mystoragelake501_source_emp
+    enable--->dataflow debug
+    Test connection---->successfull
+    allow schema dript
+
+Next configuring sink
+      click source1--> + ---->select --->sink
+                        source1------>sink1
+      click sink1
+      outputsream name: sink1
+      incoming stream :source1
+      sink type  :Dataset
+      dataset :ds_azsql501_employee
+      allow schema drift
+
+mapping: automapping--->bcoz while creating table--->same order is maintained
+
+inspect--->perfectly mapped-->eid--->eid
+
+
+    Goto pipeline--->validate
+                     debug
+                     and go and check in the target
+                     we should see data in the table--->dbo.employee
+
+                     azsql501--->Query Editor-->select * from [dbo].[employee];
+
+                     we see data in the table
+
+==============================================================================
+Possible Errors while loading into azure sql table
+
+1.Data Compatability Errors
+  ex:eid,ename,sal,gend,dno---->
+    but in table  id ,name(not null),sal(not null),gender int(1 or 0)
+    but here there is a mismatch
+
+   in datalake file there is a missed value for sal
+                      but in the table-->not null
+   in datalake--->gender is char
+      in table -->gender is int
+ such kind of errors,we need to verify the colnames,datatypes and constraints
+ here in table-->primary key--->no duplicates allowed but in i/p file
+ we have duplicates--->elimate duplicates first
+
+2.Bulk loading error
+  Every user is not authorized to load bulk data--->special permissions required
+
+3.you cannot login to sql database 
+  if your ip address is not added and also 
+  we need to allow the azure services and resources to access this server
+
+why dataflow ,when we have already copy activity?
+
+-In dataflows, we can perform multiple transformations
+ in copy activity ,just copy from source to target.
+==============================================================================
+
+
+
+
+
+
+
+  
+
+
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

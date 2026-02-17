@@ -1,0 +1,125 @@
+
+Parameterization dataset
+------------------------
+Dynmicaly passing values during run time to avoid duplicate task
+
+
+ex:  azsqldb(table1)
+           dataset   ------>copy data ------------->Datalake
+         tablename->table1                          dataset
+                                                     target(container)
+
+another Task(Task2)
+    azsqldb(table2)
+           dataset   ------>copy data ------------->Datalake
+         tablename->table2                           dataset
+                                                     target(container)
+
+another Task(Task3)
+    azsqldb(table3)
+           dataset   ------>copy data ------------->Datalake
+         tablename->table3                          dataset
+                                                     target(container)
+
+here 3 tasks, instead of duplicating the tasks, with a single pipeleine
+i need to copy the tables(table1,table2,table3) into target(datalake)
+
+===============================================================================
+table1
+table2
+table3------------>Copy data----------->Datalake
+  .
+  .
+table20
+
+If i have 20 tables and i want to copy that into datalake 
+
+here you need to create 20pipelines and pass diff tablenames to dataset
+
+To avoid this, we have parameterization
+-here we create single dataset--->for azsqltable
+                                  pass tablename as table1 during runtime
+              for copying table2-->we pass tablename as table2 during runtime
+              that is how we use only one dataset
+==============================================================================
+Create multiple tables in Azuresql database
+1)emp--------->eid,ename,sal,gend,dno
+2)customers--->cid,cname,bal,branch
+3)products----->pid,pname,price
+
+copy all the above tables data into datalake(target container) using single pipeline
+
+Goto Azsqldb--->Create tables
+
+emp table--->already available
+
+creating customer table
+
+create table customer(cid int,cname varchar(10),bal int,branch varchar(10));
+
+insert into customer values(101,'Ajay',70000,'hyd'),(102,'Rahul',80000,'pune');
+
+select * from [dbo].[customer];
+
+==============================================================================
+mydatalake401---->target(container)
+
+=============================================================================
+datasets: 2 datasets
+                      target--->already available-->ds_mystoragelake401_target
+                   source---> dataset-->new dataset-->ds_param1
+                               linkedservice :ls_azsqldb402
+                               Table name :none(we need to provide during runtime)
+                               ok--->publish all
+                    parameters:
+                       +new-->
+                    Name       Type        Default value
+                   table_name  String      '
+
+                   Connection:
+                   Table  :dbo . add dynamic content
+                                 click--->table_name
+                                        automatically we get the expression as
+                                        @dataset().table_name
+
+                   preview data--->for previewing-->enter the corresponding table
+                                                    and check
+
+===============================================================================
+  here i will use only one dataset for all the 3 tables(emp,customer,product)
+  and dynamically passing values to it
+=================================================================================
+pipeline--->new pipeleine--->parm1_pipeline1 
+
+prameters:
+   +new
+    Name      Type   Default value
+    table    String  emp
+   
+   copydata--->drag
+   source-->ds_param1
+       Dataset properties
+       Name          Value              Type
+    table_name    add dynamic content------->click--->table(pipeline parameter)
+                                           expn:@pipeline().parameters.table
+
+     sink: ds_mystoragelake_target
+
+     publish_all
+     validate
+     debug----> here it asks the tablename--->emp
+     o/p check in datalake---->target--->we  see--->dbo.emp
+ 
+again debug----> here it asks the tablename--->customer
+      o/p check in datalake---->target--->we  see--->dbo.customer
+
+again debug----> here it asks the tablename--->product
+o/p check in datalake---->target--->we  see--->dbo.product
+
+
+
+
+
+
+          
+           

@@ -1,0 +1,169 @@
+
+
+Task : Copying data from Azure DAtaLake to AzureSql
+1.Creating Azure sql instance
+2.Creating linked service for Azure sql database
+3.Creating pipeline : Copy Activity------>Datalake to Azure sql
+==============================================================================
+Step 1:   mystoragelake5001----->Data storage-->container-->source-->emp.txt
+
+//emp.txt
+eid,ename,sal,gend,dno
+101,Miller,10000,m,11
+102,Blake,20000,m,12
+103,Sony,30000,f,11
+104,Sita,40000,f,12
+105,John,50000,m,13
+
+Copy this file data into Azure sql table
+==============================================================================
+step 2: Creating Azure sql instance
+
+demo group--->create---->search :Azure sql--->select sql databases-->create
+
+--->apply offer
+
+Resource group :demogroup
+Database name  :myazsqldb101
+Server         :create new--->
+                  Server name :mydbserver1001
+                  Location    :(Asia Pacific) Australia East
+                  Authentication method: use sql Authentication
+
+                  Server admin login :mydbuser1001
+                  Password           :•••••••••
+                  Confirm password
+                  ok
+
+         Next-->Networking
+                Connectivity method  : public endpoint
+                Allow Azure services and resources to access this server-->yes
+                Add current client IP address: yes
+                Connection policy :default
+
+               Additional settings
+               use existing data : sample
+
+        Review+create---->create
+
+==============================================================================
+opening Azsqldb:
+
+click--->myazsqldb1001---> click-->Query Editor
+
+                               user name: mydbuser1001
+                               password : .....
+
+once it is opened-->we see
+1.tables
+2.views
+3.stored procedures
+
+here the default database is ---->dbo
+
+Now create a table----->emp(as per the schema of datalake file)
+
+create table->
+create table emp(eid int,ename char(20),sal int,gend char(20),dno int);
+
+in datalake---->in file-->how the schema is-->in the same way here i created
+but i wont insert data here
+Run--->succeeded
+
+Table should be created under--->Tables
+Refresh
+we see--------->dbo.emp
+
+we need to dump data into this table from datalake
+
+For the table--->dataset to be created-->
+                 for dataset--->linked service to be created
+===============================================================================
+step 3: Creating linked services
+
+       for source-->already available--->ls_mystoragelake5001
+
+for target--->for Azure sql table--->create linked service
+
+manage--->Linked services---->New----->search :Azure sql
+
+         Name:ls_azuresql_myazsqldb1001 (Here we create linked service for
+                                          a particular 
+
+        server name: mydbserver1001
+        database name: azsqldb1001
+        authentication :sql authentication
+        user:mydbserver1001
+        password:
+
+        create
+
+===============================================================================
+step 4:Creating datasets
+
+       for source-->already available---->ds_mystoragelake5001_source_imp
+
+ for target-->
+           Dataset--->create dataset--->search :Azure sql--->
+                Name :ds_azuresql_myazsqldb1001_emp
+             linked service: ls_azuresql_myazsqldb1001
+
+             Table Name:dbo.emp
+             publish all---->publish
+
+==============================================================================
+step 5: Creating pipeline
+
+      pipeline--->new pipeline
+     
+                  search :copy data ---->drag
+                           source :ds_mystoragelake5001_source_emp
+                           sink: ds_azuresql_myazsqldb1001_emp
+
+                    publish all---->publish
+
+==============================================================================
+Step 6: Run the pipeline
+        add trigger---->trigger now---->run succeeded
+
+    Go and check the output
+    Goto Azure sql-------->select * from [dbo].[emp];
+                           we get the o/p records
+
+===============================================================================
+Till now
+        Copy Activity
+             1)within the same storage account--->from source to target container
+             2)within 2 diff storage accounts--->from source of one storage account to
+                                                 target of another storage account
+
+            3)From Azure datalake to Azure sql
+
+
+===============================================================================
+
+
+
+
+
+
+
+
+              
+
+
+
+   
+
+
+
+
+
+
+
+
+            
+
+
+
+

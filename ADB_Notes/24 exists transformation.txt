@@ -1,0 +1,242 @@
+
+exists Transformation:
+---------------------
+
+ex:
+-Daily am maintaining attendance
+
+-Today also attendance recorded
+
+    yday attendance        Today Attendance
+       attendance1           attendance2
+          day1                  day2
+          Ravi                  Ravi
+          Rajesh                Rakesh
+          Rakesh                Ratan
+          Ramesh                Rohan
+
+Daily am maintaining attendance
+
+-This course goes for 4 months
+
+This is for only one trainer
+
+-such kind of trainers are 100
+
+-over all data volume is larger
+
+i want small comparision of yday and today
+
+who attended yday------->select * from attendance1
+
+who attended today------>select * from attendance2
+
+who attended yday and who continued today???
+Ravi 
+Rakesh
+
+1)who attended both days
+      source1 exists source2 ------>o/p Ravi,Rakesh
+            a ^ b
+  source1--->attendance1
+  source2--->attendance2
+
+2)who not attended yday but attended today(day2 exlusive)
+  source2 not exists with source1-->Ratan,Rohan
+  B - A
+3)who attended 1st day,not attended 2nd day(day1 exclusive)
+  
+  source1 not exists source2
+     A - B
+
+===============================================================================
+Task 1: I want to find the common records b/w the 2 files(A^B)
+Task 2: I want exclusive recs of file1(which are not part of file2)(A-B)
+Task 3: I want exclusive recs of file2(which are not part of file1)(B-A)
+
+==============================================================================
+
+source--->mystoragelake301----->container-->attendance--->data1.txt
+                                                      --->data2.txt
+
+Target--->mystoragelake301--->3containers---->commondata
+                                         ---->exclusivedata1(only file1)
+                                         ---->exclusivedata2(only file2)
+//data1.txt
+eid,ename
+101,ajay
+102,Ramesh
+103,arun
+104,sanjay
+105,ankith
+
+//data2.txt
+eid,ename
+201,anitha
+202,amar
+101,ajay
+102,Ramesh
+103,arun
+==============================================================================
+linked service is already avaialble
+                        ls_mystoragelake301
+
+==============================================================================
+Totally----->5 datasets to be created
+
+source--->2 datasets---->ds_data1
+                         ds_data2
+
+Target--->3 datasets---->ds_common
+                         ds_exclusivedata1
+                         ds_exclusivedata2
+
+==============================================================================
+pipline--->New pipeline--->Name :existspipeline
+
+dataflow--->drag
+settings
+dataflow--->new
+------------------------
+source1
+dataset:ds_data1
+------------------------
+source2
+dataset:ds_data2
+
+------------------------
+source1----->exists
+settings
+output stream name :exists1
+
+left stream :source1
+right stream:source2
+
+exist type :exists
+
+exists condition:
+                 left        right
+                 eid--------->eid
+                 ename------->ename
+                 based on what column the mapping should be done
+                 even using multiple columns yo can compare file
+
+-----------------------------------------------
+exists---->sink
+
+sink settings
+dataset: ds_common
+----------------------------------------------
+Go back to pipeline
+
+Publish
+
+Validate
+
+debug---->Suceeded
+
+check the output--->Commondata---->part-00000--->o/p: 101,ajay
+                                                      102,Ramesh
+                                                      103,arun
+
+==============================================================================
+Task 2: I want exclusve recs of file1(which are not part of file2)(A-B)
+
+
+exists settings
+
+left stream  :source1
+rigt stream  :source2
+
+exists type :doesnt exist
+
+exists condition:
+                 left        right
+                 eid--------->eid
+                 ename------->ename 
+
+sink settings
+dataset: ds_exclusive1
+
+----------------------------------------------
+Go back to pipeline
+
+Publish
+
+Validate
+
+debug---->Suceeded
+
+check the output--->Commondata---->part-00000--->o/p:104,sanjay
+                                                     105,ankith
+
+
+==============================================================================
+Task 3: I want exclusve recs of file2(which are not part of file1)(B-A)
+
+
+exists settings
+
+left stream  :source2
+rigt stream  :source1
+
+exists type :doesnt exist
+
+exists condition:
+                 left        right
+                 eid--------->eid
+                 ename------->ename 
+
+sink settings
+dataset: ds_exclusive2
+
+----------------------------------------------
+Go back to pipeline
+
+Publish
+
+Validate
+
+debug---->Suceeded
+
+check the output--->Commondata---->part-00000--->o/p:201,anitha
+                                                     202,amar
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

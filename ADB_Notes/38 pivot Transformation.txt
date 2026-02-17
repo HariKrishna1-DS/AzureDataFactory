@@ -1,0 +1,123 @@
+
+Pivot Transformation:
+---------------------
+pivot T/R--->creating cols from rows
+
+means creating multiple columns from the unique row values of a single column
+
+-Pivot is a aggregation T/R where you can select group by columns and generate
+ pivot columns using aggregate functions
+
+//emp.csv
+Eid	Ename	Salary	sex	dno	city
+101	Miller	10000	m	11	hyd
+102	Blake	20000	m	12	pune
+103	Sony	30000	f	11	hyd
+104	Sita	40000	f	12	pune
+105	John	50000	m	13	hyd
+
+in the above dataset--->take a column city---> 
+in the city column->we have 5 rows->from this unique rows of city generate cols
+
+here city has 2 unique vlaues--->i.e hyd,pune--->
+so generate 2 cols --->with names hyd and pune 
+
+and here group by col-->dno
+aggregation(count) on col-> eid
+
+creating multiple columns from the unique row values
+
+o/p: dno   hyd   pune
+     11     2     0(NULL)
+     12     0     2
+     13     1     0
+
+sql query for the above:
+select dno,count(distinct eid) from emp group by dno
+o/p-->
+
+o/p: dno   hyd   pune
+     11     2     0(NULL)
+     12     0     2
+     13     1     0
+
+==============================================================================
+here i will pivot city column rows into mutiple columns
+ex:      city           dno   hyd  pune
+          hyd            11    2    0
+          pune=======>   12    0    2
+          hyd            13    1    0
+          pune
+          hyd
+ 
+=============================================================================
+
+source--->mystoragelake---->source--->emp.csv
+                       ----->target
+//emp.csv
+Eid,Ename,Salary,sex,dno,city
+101,Miller,10000,m,11,hyd
+102,Blake,20000,m,12,pune
+103,Sony,30000,f,11,hyd
+104,Sita,40000,f,12,pune
+105,John,50000,m,13,hyd
+=============================================================================
+datasets ---->2 datasets--->Already available
+              source--->ds_mystoragelake401_empcsv-->available
+              target--->ds_mystoragelake401_target
+
+============================================================================
+dataflow--->new dataflow---->Name:dataflow_pivot
+              
+         add_source---->source1
+                        ds_mystoragelake401_empcsv
+                        datapreview
+          
+         source1----->pivot
+
+                  1.Group by-->dno  2.Pivot key--->city (which particular col
+                                                          you want to pivot)
+                                                          i.e pivot on which col)
+
+                  3.pivot column (whatever aggregation we want to perform)
+                     pivot expn---->count(Eid)
+
+         Data Preview--->
+              o/p
+o/p: dno   hyd   pune
+     11     2     NULL
+     12     NULL   2
+     13     1     NULL
+
+
+optimize--->select single partion===>so that in single file, it will be saved
+
+---------------------------------------------
+
+pivot1--------->sink1
+                ds_mystoragelake401_target
+                clear the folder-->yes
+
+--------------------------------------------
+pipeline :Name--->pivotpipeline1
+                  drag--->dataflow_pivot
+                  publish all
+                  validate
+                  debug
+
+o/p: target-->partfile
+dno,hyd,pune
+11,2,
+12,,2
+13,1,
+
+
+-----------------------------------------------------------------------------
+
+
+
+
+
+
+
+

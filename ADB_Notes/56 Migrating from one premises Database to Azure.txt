@@ -1,0 +1,137 @@
+
+
+Task : Migrating from on-premise database(oracle) to Azure cloud like Datalake
+
+connecting to on-premise databases/filesystems
+
+fist install self-hosted integration runtime
+
+create linked service--->
+   Linked service-->New Linked service--->
+                          search : database (to connect with database)
+                            or
+                          search :file (to connect with file system)
+
+==============================================================================
+source---->oracle(on-premise)--->emp(Table)
+target---->mystoragelake---->target1(container)--->
+
+Oracle Available-->username-->scott
+                   password-->tiger
+Task: copying emp table from on-premise database to cloud(datalake)
+Creating linked service:
+-----------------------
+for the above task-->2 linked services required
+
+1)To connect with oracle-->
+2)To connect with datalake--->ls_mystoragaelake-->already available
+
+
+Creating linked service to connect with oracle:
+----------------------------------------------
+manage--->New linked service
+          search :database
+
+Name*:ls_oracle1_onprem1
+
+Connect via integration runtime*:integrationRuntime1
+
+
+Host*:system name or localhost
+Port:1521
+Connection type :Oracle SID
+SID*:XE(for oracle express edition)
+     orcl(for oracle enterprise edition)
+User name*:scott
+Password*:......
+
+ok
+Linked service is created
+
+==============================================================================
+to find the sid/host/portno
+
+Goto C:/oracle/app/oracle/product/11.2/server/network/admin/tnsnames.ora
+
+in tnsnames.ora-->we see host /port and sid(service name)
+
+==============================================================================
+creating datasets:
+-----------------
+2 datasets--->for source and target
+              for target already available
+
+Creating dataset for source
+
+dataset-->New folder--->onprem--->new dataset-->
+Name:ds_oracle_emp
+Linked service*:ls_oracle1_onprem1
+
+Connect via integration runtime*:integrationRuntime1
+
+Table name:SCOTT.EMP
+
+ok
+==============================================================================
+Target datset-->
+
+dataset--->New dataset--->
+
+Name: ds_mystoragelake_onprem
+
+filepath--->browse--->target1 folder
+
+first row as header--ok
+
+import schena: none
+
+ok
+
+connection
+column delimiter--->pipe(|)
+First row as header-->True
+=============================================================================
+pipeline--->New pipeline
+
+copydata
+  source:ds_oracle_emp
+  sink:ds_mystoragelake_onprem
+
+publish all
+validate
+debug
+
+goto target1--->with tablename-->we see the file
+                i.e scott.emp.txt
+
+==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

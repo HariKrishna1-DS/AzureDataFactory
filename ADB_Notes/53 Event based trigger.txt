@@ -1,0 +1,148 @@
+
+Event-based trigger:
+--------------------
+
+-automatically executes pipeline in response to specific events
+
+Task: Using Event-Based trigger--->run a pipeline automatically and
+      convert a csv file to JSON file
+
+
+-If any data(csv file) coming from external source into datalake then
+ event is generated and pipeline should run automatically
+
+-If anyone deleting any file from the datalake----It is an event generated
+                                                  pipline should run
+
+-as per the task,If any event generates then pipeline should run automatically
+ and perform copy data activity--->this is event based trigger
+=============================================================================
+here when we upload a CSV file or when a CSV file arrives---->into
+storage account---> the pipeline should trigger
+
+-Pipeline should be able to copy data(csv) from 1 container to another and 
+ finally should generate Json file from it
+
+process:
+                                triggers pipeline
+ File upload(CSV)---->Datalake--------------------->copydata-->reads a CSV
+                                                               generates a JSON
+
+=================================================================================
+mystoragelake401------>inputcsv(container)------>not loading anything
+                       outputjson(container)--->
+
+
+pipeline---->New pipeline-------->Name:csv_to_json_eventbased
+
+Name:ds_inputcsv
+Linked service:ls_mystoragelake401
+
+File path:browse-->inputcsv folder
+First row as header
+Import schema:From connection/store
+
+I want to have a condition if anyone uploading only a csv file then it has to
+be converted to json file
+
+So to read only the csv file from source
+ -I will use wildcard filepath
+
+copydata:
+    source:ds_inputcsv
+    select-->wildcard filepath
+ Wildcard paths:inputcsv  /  /*.csv
+                              reads the csv file
+
+sink:
+dataset-->New dataset--> select-->json-->
+Name:ds_outputjson
+Linked service:ls_mystoragelake401
+File path:outputjson folder
+Import schema:From connection/store
+ok
+
+add trigger--->New/edit
+
+choose trigger--->+New
+
+Name*:trigger2
+Type*:Storage events
+From Azure subscription
+Storage account name*:mystoragelake401
+
+Container name*:inputcsv
+
+Event*:Blob created-->select
+
+Ignore empty blobs* :Yes
+
+Start trigger on creation
+
+continue-->continue-->ok
+
+publishall--->publish
+
+
+Next we will try to upload a file into storage account and then our pipelime
+should run
+
+check monitor--->nothing is running
+
+mystoragelake401--->inputcsv--->upload --->emp.csv
+
+
+check monitor---->refresh
+
+                 pipeline---->runs---->triggered by-->trigger2
+
+check outputcsv--->emp.json
+
+==============================================================================
+in event trigerrs sometimes we get error saying that they cannot be enabled
+
+they say that microsoft ecvent grid resource provider is not registered in
+subscription
+
+Register the provider in the subscription and retry the operation
+
+for that goto--->Home--> subscriptions-->select ur subscription---->
+
+settings--->Resource providers--->
+
+Goto--->microsoft event grid---->register
+
+and now recreate the trigger and upload a .csv file and check.. it converts
+to json
+==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

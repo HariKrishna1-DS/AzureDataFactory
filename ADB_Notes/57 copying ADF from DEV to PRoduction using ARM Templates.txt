@@ -1,0 +1,158 @@
+
+
+ARM Templates:
+--------------
+ARM--->Azure Resource Manager
+
+import/Export Azure data factory from Dev Environment to 
+production Environment using ARM 
+
+from Dev Environment we will export ARM Template and in production environment
+we are going to import the ARM template 
+
+ex:
+   adf_dev---->export--->all the pipelines,datasets,dataflows,linked services
+to adf_prod using ARM templates
+
+here we create a new empty adf instance for prod
+------------------------------------------------------------------------------
+here everything drag and drop but internally code is happening in json format
+to see the code---->click any pipeline/dataset/dataflow/--> and click the
+code{}--->it displays the code in json format for the pipeline/dataset/dataflow
+
+ex: change the name for a particular activity
+    it reflects in the code
+
+in the same way, whatever we have in ADF---->That will go into ARM template
+in a json file type whenever we generate linked services/datasets/pipelines
+
+ARM Template: It is a json file that has the entire configurations of
+              datasets/linked services/dataflows/pipelines
+
+-------------------------------------------------------------------------------
+
+where we can see this ARM template----->in manage tab
+
+Goto manage tab--->ARM Template---->Export ARM template
+                                  (Export your ADF as an ARM Template)
+
+
+for linked services ---->we have connection string values 
+
+All these connnection strings are required to pass when we import the
+ARM template
+
+Export ARM Template----->we get a zip file
+                         extract all-->the zip file
+                   in this extracted zip file---->we see 2 folders and 2 files
+                   1)factory --->folder
+                   2)linked templates--->folder
+                   3)ARMTEMPLATEFORFACTORY-->file
+                   4)ARMTEMPLATEPARAMETERSFORFACTORY-->file
+ we are looking for this file--->ARMTEMPLATEFORFACTORY--->open this file and
+ check-->we see the json code for all the resources we created
+
+
+old adf instance-->adfelt401
+==============================================================================
+Now create a new blank ADF instance(for production)
+
+Name:adfprod401
+
+open this--->Adfprod401---> here we wont see any pipelines,datasets,linked services
+                            It is totally empty
+ Now we need to import everything to this
+
+ Goto--->manage---->ARM Template--->import ARM Template
+
+custom deployment gets opened---->
+
+click--->build your own template in the editor
+
+Now we have 2 ways:
+I-way
+remove this 6lines we see here
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "resources": []
+}
+
+in this place--->paste the entire json code which was generated after
+                 extracting within the file-->ARMTEMPLATESFORFACTORY
+
+II-way:
+we have an option--->load file--->browse and load the entire file--->ARMTEMPLATESFORFACTORY
+
+click--->save-->we see all the resources at left side
+
+It will redirect to--->custom deployment again
+
+by default we get the DEV factor name
+change the Factory name to:adfprod401
+
+For connections strings in azsql--->goto-->azsql-->settings-->connection string
+for    "         "      in datalake-->goto datalake--->search :access keys
+2 keys will be available------>select any one and paste in custom deployment
+
+review+create--->Create
+
+Now goto--->adfprod401--->Check the resources--->we get all the pipelines,
+datasets,dataflows,linked services from the dev environement
+
+Take--->Any pipeline--->run and check--->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+                         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

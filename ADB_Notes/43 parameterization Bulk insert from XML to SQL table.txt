@@ -1,0 +1,158 @@
+
+
+Task:Bulk insert from XML to SQL using ADF
+Task:parameterization
+
+Source--->mystoragelake401--->source--->customers2.xml
+Target-->Azsqltable-------->customerxmltab1--->auto created
+
+//customer2.xml
+
+<Customers>
+     <customer id="c101">
+         <name>Ajay</name>
+         <accno>309876540</accno>
+         <bal>90000</bal>
+         <dob>1990-02-25</dob>
+     </customer>
+    <customer id="c102">
+         <name>Rahul</name>
+         <accno>309876740</accno>
+         <bal>80000</bal>
+         <dob>1991-02-25</dob>
+     </customer>
+     <customer id="c103">
+         <name>James</name>
+         <accno>309576540</accno>
+         <bal>70000</bal>
+         <dob>1992-02-18</dob>
+     </customer>
+    <customer id="c104">
+         <name>Amar</name>
+         <accno>309876840</accno>
+         <bal>50000</bal>
+         <dob>1993-03-15</dob>
+     </customer>
+</Customers>
+===============================================================================
+linked services are already available
+
+==============================================================================
+datasets--->2 datasets--->source--->1)ds_mystoragelake_customers2xml
+                                    2)ds_azsql_customerxmltab1
+
+===============================================================================
+dataset for source:
+------------------
+
+dataset--->New dataset-->data lake--->XML-->continue-->
+                                 Name:ds_mystoragelake_customers2xml
+                                 browse the path of the file
+                                 ok
+==============================================================================
+dataset for target:
+------------------
+2 ways of dynamically creating table
+1.hardcoded way--->directly specifying the tablename
+2.Uusing parameterization
+
+dataset--->New Dataset-->Search :Azure sql
+                         Name:ds_azsql_customerxmltab1
+                         table Name: we can directly provide(hardcoded)
+                           or
+                         table name: None
+                         ok
+     click parameters
+             +New---->Name         Type      Default value
+                      TableName    Sring
+
+     click connections
+             table name: dbo . add dynamic content
+
+                         It displays the parameters
+                                  TableName--->Click this---> Expn generates
+                         Expn:@dataset().TableName
+                         ok
+where we specify the Table Name---->from pipeline
+
+==============================================================================
+dataflow: New--->Name:dataflow_customerxml
+          add_source--->source1
+                        dataset: ds_mystoragelake_customers2xml
+
+          projection--->import projection
+
+source1---->flatten
+
+            unroll by :customer[]
+
+            input columns: Reset
+                           Customers.customer.{@id}----->@id
+                           Customers.customer.{name}----->name
+                           Customers.customer.{accno}----->accno
+                           Customers.customer.{bal}----->bal
+                           Customers.customer.{dob}----->dob
+
+           inspect
+           data preview
+
+flatten1---->sink1
+             dataset:ds_azsql_customerxmltab1
+publish
+===============================================================================
+pipeline---->New pipeline : xml2pipeline
+
+             drag------->dataflow_customerxml
+click parameters
+             +New---->Name         Type      Default value
+                      Table    Sring
+     Dataset parameters
+             tablename: dbo . add dynamic content
+
+                         It displays the parameters
+                                  Table--->Click this---> Expn generates
+                         Expn:@pipeline().paramters.Table      
+
+validate
+debug
+
+provide table name: customerxmltab1
+check the o/p--->select * from [dbo].[customerxmltab1];
+
+===============================================================================
+
+
+             
+
+                     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

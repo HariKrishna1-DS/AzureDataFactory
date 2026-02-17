@@ -1,0 +1,69 @@
+
+wait Activity:
+-------------
+
+wait means--------->configuring waiting time(in secs)
+                    before executing the next activity
+
+Here we see 2 advantages
+
+when records are loaded into database,commit happens, a ACK goes to source App,
+here the activity got executed but there must be some delay in getting ACK
+from the target, that's why
+
+1)activity1(load)---->wait(10sec)---->Activity2(filter)
+
+ between these 2 activities, i will configure some waiting time
+ how much time to be configured?---->it depends on the previous tracking or
+ the behavior of the target database
+
+during pipeline execution some activities are expecting some ACK from other 
+system,at that time the process will be delayed,
+without getting that ACK,if next activity starts executing, there is a 
+high chance of failure of activity
+so when activities are expecting some ACK, so include wait Activity.
+
+2)To test whether a logic is working perfectly or not
+
+  ex: if-condition-->check whther it is woking fine or not
+
+      To validate the condition
+      wait1------->we give under True part---->10secs
+      wait2------->we give under False part--->20secs
+
+  Once it is validating fine, then you can configure the actual activity
+
+  ex:  if-condition
+           Activities---->some condition is provided
+                 True---->Edit---->search:wait1
+                                          settings 
+                                          wait:10secs
+
+                 False--->Edit---->search:wait2
+                                          settings
+                                          wait:20secs
+
+      If-condition perfectly configured
+
+       ur observation---->wait1 executed means----->if-condition is True
+                          wait2 executed means----->if-condition is False
+ 
+                         if it is working fine then remove
+                         wait1 and wait2 and configure the other activities
+             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,77 @@
+
+working with XML data:
+----------------------
+
+source----->mystoragelake401---->source--->employees.xml
+
+target---->azuresql table--->emps1--->auto create table
+
+//employees.xml
+
+<employees>
+  <employee>
+       <eid> 101 </eid>
+       <ename> Ajay </ename>
+       <sal> 50000 </sal>
+       <dno> 11 </dno>
+       <address>
+           <area>Ameerpet</area>
+           <city>Hyderabad</city>
+       </address>
+       <qualification>
+             <UG>
+                 <degree1>BTech</degree1>
+                 <year> 2016</year>
+            </UG>
+            <PG>
+                <degree2>Mtech</degree2>
+                 <percentage>70</percentage>
+            </PG>
+      </qualification>
+  </employee>
+</employees>
+===============================================================================
+Linked services are already available
+
+Datasets--->2 datasets---->source----->ds_employees_xml
+                           target----->ds_azsql_emps1xml
+
+                           Newddataset:
+                           Name :ds_azsql_emps1xml
+                           Linked service* :ls_azsqldb401
+
+                          Table name:
+
+                         Import schema :None
+                         publish
+==============================================================================
+pipeine----->new pipeline------>xmlpipeline1
+             copydata---------->drag
+             source1
+             ds_employees_xml
+
+             sink1:
+             ds_azsql_emps1xml
+             table option : auto create table-->yes
+             open--->ds_azsql_emps1xml
+             Table :dbo.emps1xml
+
+             mappings:
+             Advance editor---enable
+             import schema
+             
+             publish
+
+validate
+debug--->
+
+check the output--->
+                    select * from [dbo].[emps1xml];
+                    eid  ename sal dno area    city degree1 year degree2 percentage
+                    101   Ajay 50000 11 Ameerpet hyd  Btech  2016  Mtech    70
+
+==============================================================================
+
+
+
+

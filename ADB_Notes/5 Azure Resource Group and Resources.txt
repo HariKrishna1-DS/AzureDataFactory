@@ -1,0 +1,116 @@
+
+Azure Resources/Resource Groups
+
+Here Everything is a Resource
+
+ex: ADF is a Resource
+    ADB is a Resource
+    Azure Sql is a Resource
+    Azure Synapse is a Resource
+    Azure datalake is a Resource
+
+But Resource should be under a Resource group
+
+Generally for a project, all related resources are kept under one Resource Group
+
+Ur Organization is handling diff projects
+
+project1----->related resources---->one Seperate Resource Group
+Project2----->related resources---->one Seperate Resource Group
+.
+.
+.
+.
+projectn---->related resources--->one Seperate Resource Group
+
+means for a specific project or for a specifiv branch or for a specific
+organization--->we will create seperate resource groups
+
+-Under one resource group any number of resources can be existed.
+
+Advantages of Resource group:
+---------------------------
+-Managing and monitoring the resources is very easy
+
+-For your organization, you have created 500 resources, you will forget
+ for which project which resource
+
+2 types of subscriptions:
+  1.Free trial
+  2.Pay-as-you-go-->based on the resources that are consumed by you
+                   i.e houw nuch H/w resources are utilized based on that
+                   the charges will be applied.
+==============================================================================
+Creating a Resource Group:
+
+search :REsource Groups
+
++Create--->
+Project details
+Subscription :Azure vijay1
+Resource group :ADF7pmgroup
+Resource details
+Region :(US) East US
+
+Review+Create--->
+Create---->REsource group will be created.
+
+==============================================================================
+Region :Your resource should be available in which region
+       here microsoft is offering you for azure--->more than 58 regions
+
+under 1 region--->multiple data centers are organized
+
+Advantage of these many regions:
+--------------------------------
+1.High Availability--->Suppose one data center crashes still other
+                       datacenter is available
+                       You are not physically maintaining the datacenters
+
+                       Datacenters will be organized and maintained by 
+                       microsoft itself i.e the cloud provider
+
+There is no other cloud provider who is maintaining these many regions
+
+-AWS is maintaining 23 regions
+ where as microsoft is maintaining 58+ Regions
+==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

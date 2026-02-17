@@ -1,0 +1,499 @@
+
+Azure Data Factory(ADF)
+-----------------------
+  -It is a cloud based ETL(Azure)
+
+  Advantage:
+            1)No Infrastructure
+
+            2)No License cost(pay-as-you-go)
+              Price is less compared with AWS,Google
+
+            3)Codeless ETL tool
+               Even if you want to write Customized code
+               you have provision to write customized code
+               that too without coding by defining complex pipelines
+
+            4)ADF can connect with any kind of data sources
+              It can extract data and write data into all types of
+              storages(file/RDBMS/Nosql)
+              -These databases can be on-premise databases (or)
+               cloud within the same platform(or)
+               other cloud platform databases
+ 
+               Source----------->ADF------------->Target
+             (RDBMS/Azure storage)           Azure storage components
+
+              ex:Oracle----->ADF----------->Datalake/synapsedb
+                 Datalake--->ADF----------->AZuresql
+                 AZuresql--->ADF----------->AZure DAta LAke
+                 AWS-------->ADF----------->Azure Data Lake
+
+              ADF supports both
+              1)ETL ------>less volumes of data
+              2)ELT ------>big volumes of data
+
+==============================================================================
+ADF Building Blocks:
+--------------------
+
+  -majorily 5 building blocks
+
+1.pipeline
+
+2.Activities :within pipeline, you will define activities
+              but activities are working with data
+              so to work with data,we require---->datasets
+
+3.Datasets---->but to create datasets,we require connection strings
+               these connection strings are called as--->Linked services
+
+4.Linked Services--->To create linked service, the pre-requisite is Integration Runtime
+
+5.Integration Runtime(IR) 
+
+==============================================================================
+
+1.Pipeline:
+     -mainly as ADF developer, your responsibility is creating pipelines
+     -to run these pipelines on-demand/Schedule-based
+     -As per Bussiness requirement,we need to create pipeline
+
+ Pipeline: It is a set of sequence of Activities
+           -Each activity is working with some data operation
+
+           ex:Activity No 1------->Data Extraction happens
+              Activity No 2------->Data Filtering(unnecessary data elimination)
+              Activity No 3------->Adding a new column for ur source data set
+              Activity No 4------->updating data/Transforming data
+
+so in this way, a pipeline will contain multiple sequences of Activities
+          so 1st which Activity to be executed
+             next  "      "              "
+             next  "      "              "
+
+so this is set of sequence of Activities--->which is called as pipeline
+
+==============================================================================
+2)Activity:
+   -Activity is a data operation
+   -Data operation can be
+                        -Extracting data
+                        -Filtering data
+                        -Sorting data
+                        -Merging data
+                        -Transforming data
+                        -Conditional distribution
+
+-within the pipeline,we need to configure Activities
+
+-Here the advantage is without writing any code,we can configure the activities
+
+-But activities are working with data
+
+-Always the 1st step should be reading data
+ and the last step should be writing data
+
+-Reading from what------->Source
+-writing into what------->target(sink)
+
+so for that sources and targets,we need to create datasets
+
+-To work with data,we require datasets
+==============================================================================
+3)Dataset
+
+
+
+   -Dataset is a alias or snapshot of physical data object
+
+   ex:
+ mysql---->database----->mydb----->table------>sales
+ Azure datalake-->StorageAccount-->mystorage--->container---->mydata
+
+Task: Load data from sales table to mydata container
+
+      -To execute this task,my physical data objects are-->sales and mydata
+
+      -To work with them in ADF,we have to create dataset
+
+      -To perform this task,we need to create 2 datasets
+
+       1st dataset for sales
+        -whenever we create datasets,some naming convetions we need to follow
+
+       sales--->ds_mysql_mydb_sales      ds--->dataset
+                This is dataset name in ADF(alias of physical object in ADF)
+       here sales is physical object in mysql
+
+       2nd dataset
+       mydata--->ds_datalake_mystorage_mydata
+
+                 container name is----->mydata
+                 Available at storage account--->mystorage
+
+       Naming convention is not a rule------>It is a recommendation
+
+-To work with physical datafiles(or) physical data tables--->we require datasets
+
+==============================================================================
+4)Linked service:
+  -Directly You cannot create datasets,we have to create linked service before that
+  
+  -Linked service is a connection string
+
+  ex: To connect with some website-------->we require connection string
+      To connect with some database server-->we require some connection string
+
+ -so these connection strings are simply called as linked services in ADF.
+ --------------------------------------------------------------------------- 
+  ex 1:
+      Azure Datalake---------->ADF------------->Azure Sql
+  
+   here ADF  is pulling data from Datalake and dumping into Azure sql
+
+   here ADF To connect with--->Datalake--->one linked service is required
+        ADF To connect with--->Azure Sql-->one Linked service is required
+
+   so here Totally 2 linked sevices are required to perform this task
+ ----------------------------------------------------------------------------
+  ex:2
+      Datalake1------->ADF------------->Datalake2
+
+   here how many linked services are required??--->2
+ 
+   here ADF To connect with--->Datalake1--->one linked service is required
+        ADF To connect with--->Datalake2-->one Linked service is required 
+ -----------------------------------------------------------------------------
+ ex:3
+      Datalake1(container1)------->ADF------------->Datalake1(container2)
+
+   here how many linked services are required??--->1
+ 
+   here ADF To connect with--->Datalake1--->one linked service is required
+        ADF To connect with--->Datalake1--->same Linked service is used
+ -----------------------------------------------------------------------------
+ex:4
+   Oracle---------->ADF------------->Datalake
+  
+   here ADF  is pulling data from Oracle and dumping into Datalake
+
+   here how many linked services are required??--->2
+
+   here ADF To connect with--->Oracle--  ->one linked service is required
+        ADF To connect with--->Data Lake-->one Linked service is required
+
+   so here Totally 2 linked sevices are required to perform this task
+
+-To establish connection b/w source and destination(sink),there should be
+  a integration Runtime
+------------------------------------------------------------------------------
+5)Integration Runtime(IR):
+   These integration Runtimes are connectors
+
+   within Azure--->Varieties of storages are there
+                   ex: Azure Datalake storage(ADLS),Azure sql,
+                       Azure synapse,Azure cosmosdb
+
+  Similarly---->outside azure also, we have diff storages
+                 ex:databases,filesystems,dfs and other cloud databases
+
+  Source------------->Target
+  (Azure Datalake)    (azure Sql)
+
+- here both are Azure services only,but there is no connection b/w them
+
+-So there should be some connectors which integrate these two for 
+ data export/import operations
+ i.e for transportation purpose i.e Integration Runtime
+
+ Integration Run-time is the pre-requisite for Linked service
+
+ Linked service is the pre-requsite for dataset
+
+ means to create a data set, there should be a already existed linked service
+
+ Similarly to create a linked service, there should be a integration Runtime
+
+  It is not a connection provider
+  It is a connecttion establisher--->b/w source and Target(sink)
+
+==============================================================================
+Types of Integration Run-Time---->3types
+
+1.Auto IR    ---->if storage services----->is part of azure
+                  i.e if both source and target are Azure-related, go for Auto IR
+                  ex:Azure sql,Azure DataLake,Azure CosmosDB,Azure Synapse
+
+2.Self-hosted IR-->IF storage service--->is not pary of Azure(non-Azure)
+                   ex: on-premise databases like--->Oracle,mysql
+                       and other cloud storages--> like AWS s3
+
+3.SSIS IR
+
+===============================================================================
+Generally in the Developer Projects
+   -The Integration Runtimes and Linked services are created by Admins
+
+1)Auto IR: 
+   -If source storage service is part of Azure services then we have to use
+    AutoIR
+   -Always target will be azure only
+   If source is
+               -Azure Datalake ---->Go for------->Auto IR
+               -Azure sql    ------>Go for------->Auto IR
+               -Azure CosmosDB----->Go For------->Auto IR
+               -Azure Synapse ----->Go For------->Auto IR
+
+   If source is
+              -Oracle----------->go for self-hosted IR
+              -mysql------------>go for self-hosted IR
+              -AWS s3----------->go for self-hosted IR
+
+==============================================================================
+2)Self-hosted IR:
+       -IF the storage(source) is not part of Azure service
+        then go for self-hosted IR
+
+        ex:
+           Source is oracle
+           To create dataset for oracle table means
+           first linked service should be existed
+           but to create that linked service for oracle
+           there should be a self-hosted IR
+            we have to downlosd this 
+               we have to run that IR server
+
+ -within the IR server,we have to configure these oracle details-->credentials
+=============================================================================
+3)SSIS Integration Runtime(SSIS IR):
+  --------------------------------
+
+What is SSIS ?-------->Sql server Integration service
+
+-Before Azure cloud, SSIS is an ETL Tool
+
+ex: Informatica---->is a ETL Tool------->on-premise based
+    similarly microsoft has a ETL Tool called--->SSIS
+    SSIS--->On-premise Microsoft ETL Tool
+
+ ex:
+  for past 5 years---->Ur comapany is using SSIS to work on ETL-workloads
+
+  but today ur data volume is too high that SSIS could not process that 
+  much of huge volumes of data
+
+  Now ur company has decided to migrate all SSIS worlkoads(or) SSIS Packages
+  into the cloud
+
+  If microsoft customer want to migrate to cloud
+  means his first choice will be Azure only bcoz he has already got habituated
+  to microsoft products,also Azure is cheaper and that too existing customers
+  of microsoft additionally some offers will be there
+
+  here the problem is--->Already in SSIS ETL, there are 200pipelines
+  called as packages
+
+ SSIS PAckages--->200 ETL Pipelines they have already developed
+
+ If they want to come to Azure side means, generally again they have to
+ develop these 200 pipelines in ADF.
+
+ So here development time and cost, both are applied here
+
+ instead of doing that
+
+ The existed SSIS PAckages have to run in Azure cloud with ADF
+ without re-developing existing pipelines, at that time-->we have to use
+ SSIS IR
+
+ ex:
+     -UR company previously was using Informatica
+
+     -Now they decided to go for ADF
+
+     what is the process?
+
+     -here data is not with Informatica
+
+     -Informatica is just a Data-brokerage tool
+
+     -Informatica is just reading from source and writing into target(warehouse)
+
+     -Assume  in Informatics, you had 200 pipelines
+     -All these pipelines ur company has to re-develop
+
+     -For re-developing it may takes 6 months with 10 developers and with
+      lot of development cost.
+
+     ex:But if ur company previously using SSIS
+        No need to re-develop these existed pipelines
+        Pipelines already existing in SSIS
+        using SSIS IR, I can integrate and run those pipeline on ADF
+        only small configurations changes to be done
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+ 
+
+  
+
+
+
+
+
+
+
+                 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+           
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
